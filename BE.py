@@ -22,6 +22,7 @@ parser.add_argument("-mol", "--molecule", help="molecule to sample", type=str, d
 parser.add_argument("-g", "--gfn", help="GFN-xTB method to use (0,1,2, or ff)", default="2")
 parser.add_argument("-r", "--radius", help="Radius for unfixing molecules", type=float, default="5")
 parser.add_argument("-om","--othermethod", action='store_true', help="Other method without the fixing of anything. Temporary name.")
+parser.add_argument("-restart", "--restart", help="If the calculation is a restart and from where it restart", type=int, default="0")
 #Conflicting options part
 
 #conflict between -onlyfreq and -nofreq
@@ -53,6 +54,7 @@ onlyfixed = args.onlyfixed
 onlyunfixed = args.onlyunfixed
 onlyfreq = args.onlyfreq
 othermethod = args.othermethod
+restart = args.restart
 
 #flags compatibility test
 
@@ -303,7 +305,7 @@ def LabelMoleculesRadius(df_xyz,mol_ref,radius):
 	return(df_xyz)
 
 #Start of the grain totally fixed part of BE computation
-def fixed():
+def fixed(restart):
     #Create every input for the fixed part
     for i in range(len_grid):
         subprocess.call(['mkdir', str(i)])
@@ -316,6 +318,8 @@ def fixed():
     
     #Compute the BE with the grain totally fixed
     for i in range(len_grid):
+        if i < restart:
+            continue
         process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
         stdout, stderr = process.communicate()
@@ -325,9 +329,11 @@ def fixed():
         output.close()
         subprocess.call(['mv', './' + str(i) + '/xtbopt.log', './' + str(i) + '/movie.xyz'])
 
-def unfixed():
+def unfixed(restart):
     #Start of the unfixed radius part of the BE computation
     for i in range(len_grid):
+        if restart > 0: 
+            break
         if os.path.isdir('./' + str(i) + '/') is False:
             print('Folder with geometry needed not found')
             exit()
@@ -402,6 +408,8 @@ def unfixed():
         list_not_discarded = np.setdiff1d(list_not_discarded, list_discarded_array)
     
     for i in range(len_grid):
+        if i < restart:
+            continue
         if i in list_not_discarded:
             process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
@@ -505,12 +513,15 @@ def unfixed():
                 print(str(i) + " Y", file=Results)
                 Results.close()
 
-def frequencies(othermethod):
+def frequencies(restart, othermethod):
     for i in range(len_grid):
         if os.path.isdir('./' + str(i) + '/') is True and os.path.isfile('./' + str(i) + '/xtb.inp') is False:
             othermethod = True
+            break
     if othermethod is True:
         for i in range(len_grid):
+            if i < restart:
+                continue
             if os.path.isdir('./' + str(i) + '/') is False:
                 print('Folder with geometry needed not found')
                 exit()
@@ -535,6 +546,8 @@ def frequencies(othermethod):
         file_unfixed_discarded = np.loadtxt("./results_lorenzo_unfixed_grain.txt", dtype=str)
         list_unfixed_discarded = np.atleast_2d(file_unfixed_discarded)
         for i in range(len_grid):
+            if i < restart:
+                continue
             if i in list_not_discarded:
                 if list_unfixed_discarded[i,1] == "Y":
                     if os.path.isdir('./' + str(i) + '/unfixed-radius') is False:
@@ -579,14 +592,18 @@ def frequencies(othermethod):
                 print(str(i) + " N", file=Results)
                 Results.close()
 
-def othermethod_func():
+def othermethod_func(restart):
     #Create every input for the fixed part
     for i in range(len_grid):
+        if restart > 0:
+            break
         subprocess.call(['mkdir', str(i)])
         io.write('./' + str(i) + '/BE_' + str(i) + '.xyz', sphere + sphere_grid[len_sphere + i*len_molecule:len_sphere + (i+1)*len_molecule])
     
     #Compute the BE with the grain totally fixed
     for i in range(len_grid):
+        if i < restart:
+            continue
         process = subprocess.Popen(['xtb', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
         stdout, stderr = process.communicate()
@@ -611,14 +628,18 @@ len_sphere_grid = len(sphere_grid)
 len_molecule = len(molecule(molecule_to_sample))
 len_grid = int((len_sphere_grid - len_sphere)/len_molecule)
 
-if othermethod is True:
-    othermethod_func()
+if othermethod is True and onlyfreq is False:
+    othermethod_func(restart)
+    restart = 0
 
 if nofixed is False and onlyunfixed is False and onlyfreq is False and othermethod is False:
-    fixed()
+    fixed(restart)
+    restart = 0
 if onlyfixed is False and onlyfreq is False and othermethod is False:
-    unfixed()
+    unfixed(restart)
+    restart = 0
 
 if nofreq is False and onlyfixed is False and onlyunfixed is False:
 #Block for frequencies computation
-    frequencies(othermethod)
+    frequencies(restart,othermethod)
+    restart = 0

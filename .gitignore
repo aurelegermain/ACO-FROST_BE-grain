@@ -20,3 +20,13 @@
 /results_extreme_frequencies_lorenzo_unfixed_grain.txt
 /results_lorenzo_unfixed_grain.txt
 /sphere.xyz
+H2O_xtb/.xtboptok
+H2O_xtb/frequencies
+H2O_xtb/g98.out
+H2O_xtb/gfnff_topo
+H2O_xtb/H2O_inp.xyz
+H2O_xtb/H2O.xyz
+H2O_xtb/hessian
+H2O_xtb/output
+H2O_xtb/vibspectrum
+H2O_xtb/xtbopt.log
