@@ -6,6 +6,7 @@ import subprocess
 import numpy as np
 from scipy.spatial import ConvexHull
 from ase import io, Atoms, neighborlist
+from ase.units import kJ,Hartree,mol
 from ase.build import molecule
 import argparse
 import math
@@ -514,9 +515,17 @@ def unfixed(restart):
                 Results.close()
 
 def frequencies(restart, othermethod):
+    grain_freq = False
     for i in range(len_grid):
-        if os.path.isdir('./' + str(i) + '/') is True and os.path.isfile('./' + str(i) + '/xtb.inp') is False:
+        if os.path.isdir('./' + str(i) + '/') is True and os.path.isfile('./' + str(i) + '/xtb.inp') is False and grain_freq is False:
             othermethod = True
+            process = subprocess.Popen(['xtb', grain, '--hess', '--gfn' + gfn, '--verbose'], cwd='./', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            output = open("./grain_frequencies.out", "w")
+            print(stdout.decode(), file=output)
+            print(stderr.decode(), file=output)   
+            output.close()
+            grain_freq = True
             break
     if othermethod is True:
         for i in range(len_grid):
@@ -643,3 +652,72 @@ if nofreq is False and onlyfixed is False and onlyunfixed is False:
 #Block for frequencies computation
     frequencies(restart,othermethod)
     restart = 0
+
+def energy_opt(file_opt):
+    energy = float([key for key in io.read(file_opt).info][1])
+    return energy
+
+def ZPE_freq(file_freq):
+    with open(file_freq , "rt") as myfile:
+        output = myfile.read()
+
+    start_string=":: zero point energy"
+    end_string="Eh   ::" 
+            
+
+    start = output.index(start_string) + len(start_string)
+    end = output.index(end_string, start)
+    zpe_output = float(output[start:end].strip())
+    return zpe_output
+
+def HartreetoKjmol(value_Hartree):
+    value = value_Hartree * Hartree * mol/kJ
+    return value
+
+#output file 
+
+def output():
+    name_file_results = "results.txt"
+    file_results = open(name_file_results, "w")
+    energy_grain = energy_opt(grain)
+    energy_mol = energy_opt('./' + molecule_to_sample + '_xtb/' + molecule_to_sample + '.xyz')
+    ZPE_mol = ZPE_freq('./' + molecule_to_sample + '_xtb/frequencies')
+
+    for i in range(len_grid):
+        if os.path.isdir('./' + str(i)) is True:
+            if os.path.isdir('./' + str(i) + '/unfixed-radius') is True:
+                if os.path.isdir('./' + str(i) + '/unfixed-radius/grain_freq') is True:
+                    energy_fixed = energy_opt('./' + str(i) + '/xtbopt.xyz')
+                    energy_unfixed = energy_opt('./' + str(i) + '/xtbopt.xyz')
+                    ZPE = ZPE_freq('./' + str(i) + '/unfixed-radius/BE_' + str(i) + '_frequencies.out')
+                    ZPE_grain = ZPE_freq('./' + str(i) + '/unfixed-radius/grain_freq/grain_frequencies.out')
+                    BE_fixed = HartreetoKjmol(energy_grain + energy_mol - energy_fixed)
+                    BE_unfixed = HartreetoKjmol(energy_grain + energy_mol - energy_unfixed)
+                    Delta_ZPE = HartreetoKjmol(ZPE - ZPE_grain - ZPE_mol)
+                    BE_ZPE = BE_unfixed - Delta_ZPE
+                    print(str("{:{width}d}".format(i, width=3)) + str("{: {width}.{prec}f}".format(BE_fixed, width=25, prec=14)) + str("{: {width}.{prec}f}".format(BE_unfixed, width=25, prec=14)) + str("{: {width}.{prec}f}".format(BE_ZPE, width=25, prec=14)) + str("{: {width}.{prec}f}".format(Delta_ZPE, width=25, prec=14)), file=file_results)
+                else:
+                    energy_fixed = energy_opt('./' + str(i) + '/xtbopt.xyz')
+                    energy_unfixed = energy_opt('./' + str(i) + '/unfixed-radius/xtbopt.xyz')
+                    BE_fixed = HartreetoKjmol(energy_grain + energy_mol - energy_fixed)
+                    BE_unfixed = HartreetoKjmol(energy_grain + energy_mol - energy_unfixed)
+                    print(str("{:{width}d}".format(i, width=3)) + str("{: {width}.{prec}f}".format(BE_fixed, width=25, prec=14)) + str("{: {width}.{prec}f}".format(BE_unfixed, width=25, prec=14)), file=file_results)
+
+            elif os.path.isfile('./' + str(i) + '/xtb.inp') is False:
+                energy = energy_opt('./' + str(i) + '/xtbopt.xyz')
+                ZPE = ZPE_freq('./' + str(i) + '/BE_' + str(i) + '_frequencies.out')
+                BE = HartreetoKjmol(energy_grain + energy_mol - energy)
+                ZPE_grain = ZPE_freq('./grain_frequencies.out')
+                Delta_ZPE = HartreetoKjmol(ZPE - ZPE_grain - ZPE_mol)
+                BE_ZPE = BE - Delta_ZPE
+                print(str("{:{width}d}".format(i, width=3)) + str("{: {width}.{prec}f}".format(BE, width=25, prec=14)) + str("{: {width}.{prec}f}".format(BE_ZPE, width=25, prec=14)) + str("{: {width}.{prec}f}".format(Delta_ZPE, width=25, prec=14)), file=file_results)
+            else:
+                energy_fixed = energy_opt('./' + str(i) + '/xtbopt.xyz')
+                BE_fixed = HartreetoKjmol(energy_grain + energy_mol - energy_fixed)
+                print(str("{:{width}d}".format(i, width=3)) + str("{: {width}.{prec}f}".format(BE_fixed, width=25, prec=14)), file=file_results)
+        else:
+            print('Problem')
+            exit()
+    file_results.close()
+
+output()

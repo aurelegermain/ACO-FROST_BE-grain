@@ -30,3 +30,11 @@ H2O_xtb/hessian
 H2O_xtb/output
 H2O_xtb/vibspectrum
 H2O_xtb/xtbopt.log
+test_ase.py
+.gitignore
+g98.out
+gfnff_topo
+grain_frequencies.out
+hessian
+results.txt
+vibspectrum
