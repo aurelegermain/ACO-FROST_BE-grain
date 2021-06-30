@@ -1,4 +1,5 @@
 # %%
+from numpy.lib.function_base import blackman
 import pandas as pd
 from copy import deepcopy
 import subprocess
@@ -10,15 +11,34 @@ import argparse
 import math
 import os
 from itertools import combinations
+import conflictsparse
 
 rng = np.random.default_rng()
 
 parser = argparse.ArgumentParser()
-parser.add_argument("grain", metavar="G", help="Grain model to sample", type=str)
+parser.add_argument("grain", metavar="G", help="Grain model to sample in .xyz", type=str)
 parser.add_argument("-level", "--level", help="Grid level needed", type=int, default="0")
 parser.add_argument("-mol", "--molecule", help="molecule to sample", type=str, default="0", required=True)
-parser.add_argument("-g", "--gfn", help="GFN-xTB method to use", default="2")
+parser.add_argument("-g", "--gfn", help="GFN-xTB method to use (0,1,2, or ff)", default="2")
 parser.add_argument("-r", "--radius", help="Radius for unfixing molecules", type=float, default="5")
+parser.add_argument("-om","--othermethod", action='store_true', help="Other method without the fixing of anything. Temporary name.")
+#Conflicting options part
+
+#conflict between -onlyfreq and -nofreq
+group_freq = parser.add_mutually_exclusive_group()
+group_freq.add_argument('-nofreq', action='store_true', help="No frequencies computation")
+only_freq_arg = group_freq.add_argument('-onlyfreq', action='store_true', help="Only the frequencies computation. Needs the fixed or unfixed files")
+
+#conflict between -onlyfixed and -nofixed
+group_fixed = parser.add_mutually_exclusive_group()
+group_fixed.add_argument('-nofixed', action='store_true', help="The grain is totally unfixed")
+only_fixed_arg = group_fixed.add_argument('-onlyfixed', action='store_true', help="Only the opt of the fixed grain")
+
+#conflict between -onlyfixed -onlyunfixed and -onlyfreq
+group_only = parser.add_mutually_exclusive_group()
+group_only.add_argument('-onlyunfixed', action='store_true', help="Only the opt of the unfixed grain. Needs the fixed files")
+group_only._group_actions.append(only_freq_arg)
+group_only._group_actions.append(only_fixed_arg)
 
 args = parser.parse_args()
 
@@ -27,7 +47,16 @@ grain = args.grain
 molecule_to_sample = args.molecule.upper()
 gfn = str(args.gfn)
 radius_unfixed = args.radius
+nofreq =args.nofreq
+nofixed = args.nofixed
+onlyfixed = args.onlyfixed
+onlyunfixed = args.onlyunfixed
+onlyfreq = args.onlyfreq
+othermethod = args.othermethod
 
+#flags compatibility test
+
+#if (nofreq is True and onlyfreq is True) or (nofreq is False and onlyfreq is False):
 
 distance = 2.5
 coeff_min = 1.00
@@ -70,7 +99,7 @@ def grid_building(sphere, level):
         indices = np.sort(indices)
         indices =indices[indices[:, 0].argsort()]
     
-        #build the list of each point to be added to constructuct the next level grid
+        #build the list of each point to be added to construct the next level grid
         list_point_to_add= []
         for l in range(len(indices)):
             list_point_to_add = np.append(list_point_to_add,[i for i in combinations(indices[l,:], 2)])
@@ -273,8 +302,307 @@ def LabelMoleculesRadius(df_xyz,mol_ref,radius):
 	df_xyz['Level'] = xyz_bool
 	return(df_xyz)
 
+#Start of the grain totally fixed part of BE computation
+def fixed():
+    #Create every input for the fixed part
+    for i in range(len_grid):
+        subprocess.call(['mkdir', str(i)])
+        file_xtb_input = open("./" + str(i) + "/xtb.inp","w")
+        print("$constrain", file=file_xtb_input)
+        print("    atoms: 1-" + str(len_sphere), file=file_xtb_input)
+        print("$end", file=file_xtb_input)
+        file_xtb_input.close()
+        io.write('./' + str(i) + '/BE_' + str(i) + '.xyz', sphere + sphere_grid[len_sphere + i*len_molecule:len_sphere + (i+1)*len_molecule])
+    
+    #Compute the BE with the grain totally fixed
+    for i in range(len_grid):
+        process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        
+        stdout, stderr = process.communicate()
+        output = open("./" + str(i) + "/BE_" + str(i) + ".out", "w")
+        print(stdout.decode(), file=output)
+        print(stderr.decode(), file=output)   
+        output.close()
+        subprocess.call(['mv', './' + str(i) + '/xtbopt.log', './' + str(i) + '/movie.xyz'])
+
+def unfixed():
+    #Start of the unfixed radius part of the BE computation
+    for i in range(len_grid):
+        if os.path.isdir('./' + str(i) + '/') is False:
+            print('Folder with geometry needed not found')
+            exit()
+        subprocess.call(['mkdir', './' + str(i) + '/unfixed-radius'])
+        subprocess.call(['cp', './' + str(i) + '/xtbopt.xyz', './' + str(i) + '/unfixed-radius/BE_' + str(i) + '.xyz'])
+    
+        input_BE_unfixed  = './' + str(i) + '/unfixed-radius/BE_' + str(i) + '.xyz'
+        df_xyz_test = FromXYZtoDataframeMolecule(input_BE_unfixed) 
+        mol_ref = df_xyz_test['Molecules'].max()
+        df_xyz_test = LabelMoleculesRadius(df_xyz_test,mol_ref,radius_unfixed)
+        grain_structure = df_xyz_test.to_numpy()
+    
+        for k in range(len(grain_structure[:,5])):
+            if grain_structure[k,5] == "M":
+                if "list_fix" in locals():
+                    list_fix = np.append(list_fix,k)
+                else:
+                    list_fix = k
+            elif grain_structure[k,5] == "H" and grain_structure[k,4]!=mol_ref:
+                if "list_not_fix" in locals():
+                    list_not_fix = np.append(list_not_fix,k)
+                else:
+                    list_not_fix = k
+    
+        file_xtb_unfixed_input = open("./" + str(i) + "/unfixed-radius/xtb.inp","w")
+        print("$constrain", file=file_xtb_unfixed_input)
+        print("    atoms: ", end="", file=file_xtb_unfixed_input)
+        print(list_fix)
+        list_fix = np.atleast_1d(list_fix)
+        for k in range(len(list_fix)):
+            if k!=0:
+                if k==len(list_fix)-1:
+                    if last_fix == k - 1:
+                        print("-" + str(list_fix[k]+1), end="", file=file_xtb_unfixed_input)
+                        j = j + 1
+                    else:
+                        print("," + str(list_fix[k]+1), end="", file=file_xtb_unfixed_input)
+                else:
+                    if list_fix[last_fix] == list_fix[k] - 1:
+                        last_fix = k
+                    else:
+                        print("-" + str(list_fix[last_fix]+1) + "," + str(list_fix[k]+1), end="", file=file_xtb_unfixed_input)
+                        last_fix = k
+                        j = j + 1
+            elif k==0:
+                j = 0
+                last_fix = k
+                print(list_fix[k]+1, end="", file=file_xtb_unfixed_input)
+    
+        print("\n$end", file=file_xtb_unfixed_input)
+        file_xtb_unfixed_input.close()
+    
+        if "list_not_fix" in locals():
+            del list_not_fix
+        else:
+            file_list_discarded = open(list_discarded, "a")
+            print(str(i) + "    N", file=file_list_discarded)
+            file_list_discarded.close()
+    
+        if "list_fix" in locals(): 
+            del list_fix
+    
+    try:
+        open(list_discarded, "r")
+    except FileNotFoundError:
+        list_not_discarded = np.arange(len_grid)
+    else:
+        list_not_discarded = np.arange(len_grid)
+        file_list_discarded = np.loadtxt(list_discarded, dtype=str)
+        file_list_discarded = np.atleast_2d(file_list_discarded)
+        list_discarded_array = file_list_discarded[:,0].astype(int)
+        list_not_discarded = np.setdiff1d(list_not_discarded, list_discarded_array)
+    
+    for i in range(len_grid):
+        if i in list_not_discarded:
+            process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        
+            stdout, stderr = process.communicate()
+            output = open("./" + str(i) + "/unfixed-radius/BE_" + str(i) + ".out", "w")
+            print(stdout.decode(), file=output)
+            print(stderr.decode(), file=output)   
+            output.close()
+            subprocess.call(['mv', './' + str(i) + '/unfixed-radius/xtbopt.log', './' + str(i) + '/unfixed-radius/movie.xyz'])
+    
+            restart_BE = 0
+            equal_structure = False 
+    
+            while equal_structure!=True:
+                
+                if os.path.isfile("NOT_CONVERGED"):
+                    equal_structure = True
+                    Results = open("./results_lorenzo_unfixed_grain.txt", "a")
+                    print(str(i) + " N", file=Results)
+                    Results.close()
+                    continue
+                
+                input_file  = './' + str(i) + '/unfixed-radius/BE_' + str(i) + '.xyz'
+                df_xyz_test2 = FromXYZtoDataframeMolecule(input_file) 
+                mol_ref2 = df_xyz_test2['Molecules'].max()
+                df_xyz_test2 = LabelMoleculesRadius(df_xyz_test2,mol_ref2,radius_unfixed)
+                grain_structure2 = df_xyz_test2.to_numpy()
+        
+                output_file  = './' + str(i) + '/unfixed-radius/xtbopt.xyz'
+                df_xyz_test = FromXYZtoDataframeMolecule(output_file) 
+                mol_ref = df_xyz_test['Molecules'].max()
+                df_xyz_test = LabelMoleculesRadius(df_xyz_test,mol_ref,radius_unfixed)
+                grain_structure = df_xyz_test.to_numpy()
+        
+                if np.array_equal(grain_structure[:,5],grain_structure2[:,5])==False:
+                    print(str(i) + " prout")
+                    subprocess.call(['mv', './' + str(i) + '/unfixed-radius', './' + str(i) + '/' + str(restart_BE)])
+                    subprocess.call(['mkdir', './' + str(i) + '/unfixed-radius'])
+                    subprocess.call(['cp', './' + str(i) + '/' + str(restart_BE) + '/xtbopt.xyz', './' + str(i) + '/unfixed-radius/BE_' + str(i) + '.xyz'])
+        
+                    for k in range(len(grain_structure[:,5])):
+                        if grain_structure[k,5] == "M":
+                            if "list_fix" in locals():
+                               list_fix = np.append(list_fix,k)
+                            else:
+                                 list_fix = k
+                        elif grain_structure[k,5] == "H" and grain_structure[k,4]!=mol_ref:
+                            if "list_not_fix" in locals():
+                                list_not_fix = np.append(list_not_fix,k)
+                            else:
+                                list_not_fix = k
+        
+                    file_xtb_unfixed_input = open("./" + str(i) + "/unfixed-radius/xtb.inp","w")
+                    print("$constrain", file=file_xtb_unfixed_input)
+                    print("    atoms: ", end="", file=file_xtb_unfixed_input)
+                    print(list_fix)
+                    for k in range(len(list_fix)):
+                        if k!=0:
+                            if k==len(list_fix)-1:
+                                if last_fix == k - 1:
+                                    print("-" + str(list_fix[k]+1), end="", file=file_xtb_unfixed_input)
+                                    m = m + 1
+                                else:
+                                    print("," + str(list_fix[k]+1), end="", file=file_xtb_unfixed_input)
+                            else:
+                                if list_fix[last_fix] == list_fix[k] - 1:
+                                    last_fix = k
+                                else:
+                                    print("-" + str(list_fix[last_fix]+1) + "," + str(list_fix[k]+1), end="", file=file_xtb_unfixed_input)
+                                    last_fix = k
+                                    m = m + 1
+                        elif k==0:
+                            m = 0
+                            last_fix = k
+                            print(list_fix[k]+1, end="", file=file_xtb_unfixed_input)
+                
+                    print("\n$end", file=file_xtb_unfixed_input)
+                    file_xtb_unfixed_input.close()
+    
+                    del list_fix
+                    del list_not_fix
+    
+    
+                    process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    
+                    stdout, stderr = process.communicate()
+                    output = open("./" + str(i) + "/unfixed-radius/BE_" + str(i) + ".out", "w")
+                    print(stdout.decode(), file=output)
+                    print(stderr.decode(), file=output)   
+                    output.close()
+                    subprocess.call(['mv', './' + str(i) + '/unfixed-radius/xtbopt.log', './' + str(i) + '/unfixed-radius/movie.xyz'])  
+    
+                    restart_BE = restart_BE + 1
+                else:
+                    equal_structure = True
+            if restart_BE > 0:
+                for l in range(restart_BE):
+                    subprocess.call(['mv', './' + str(i) + '/' + str(l), './' + str(i) + '/unfixed-radius'])
+            if os.path.isfile("NOT_CONVERGED") == False:
+                Results = open("./results_lorenzo_unfixed_grain.txt", "a")
+                print(str(i) + " Y", file=Results)
+                Results.close()
+
+def frequencies(othermethod):
+    for i in range(len_grid):
+        if os.path.isdir('./' + str(i) + '/') is True and os.path.isfile('./' + str(i) + '/xtb.inp') is False:
+            othermethod = True
+    if othermethod is True:
+        for i in range(len_grid):
+            if os.path.isdir('./' + str(i) + '/') is False:
+                print('Folder with geometry needed not found')
+                exit()
+            process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'xtbopt.xyz', '--hess', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            output = open("./" + str(i) + "/BE_" + str(i) + "_frequencies.out", "w")
+            print(stdout.decode(), file=output)
+            print(stderr.decode(), file=output)   
+            output.close()
+    else:
+        try:
+            open(list_discarded, "r")
+        except FileNotFoundError:
+            list_not_discarded = np.arange(len_grid)
+        else:
+            list_not_discarded = np.arange(len_grid)
+            file_list_discarded = np.loadtxt(list_discarded, dtype=str)
+            file_list_discarded = np.atleast_2d(file_list_discarded)
+            list_discarded_array = file_list_discarded[:,0].astype(int)
+            list_not_discarded = np.setdiff1d(list_not_discarded, list_discarded_array)
+
+        file_unfixed_discarded = np.loadtxt("./results_lorenzo_unfixed_grain.txt", dtype=str)
+        list_unfixed_discarded = np.atleast_2d(file_unfixed_discarded)
+        for i in range(len_grid):
+            if i in list_not_discarded:
+                if list_unfixed_discarded[i,1] == "Y":
+                    if os.path.isdir('./' + str(i) + '/unfixed-radius') is False:
+                        print('Folder with geometry needed not found')
+                        exit()
+                    process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'xtbopt.xyz', '--hess', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    stdout, stderr = process.communicate()
+                    output = open("./" + str(i) + "/unfixed-radius/BE_" + str(i) + "_frequencies.out", "w")
+                    print(stdout.decode(), file=output)
+                    print(stderr.decode(), file=output)   
+                    output.close()
+
+                    Results = open("./results_extreme_frequencies_lorenzo_unfixed_grain.txt", "a")
+                    if os.path.isfile("./" + str(i) + "/unfixed-radius/xtbhess.xyz"):
+                        print("N", file=Results)
+                        Results.close()
+                    else:
+                    
+                        subprocess.call(['mkdir', './' + str(i) + '/unfixed-radius/grain_freq'])
+                        subprocess.call(['cp', './' + grain, './' + str(i) + '/unfixed-radius/grain_freq/'])
+                        subprocess.call(['cp', './' + str(i) + '/unfixed-radius/xtb.inp', './' + str(i) + '/unfixed-radius/grain_freq/'])
+                        process = subprocess.Popen(['xtb', '--input', 'xtb.inp', grain, '--hess', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius/grain_freq', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+                        stdout, stderr = process.communicate()
+                        output = open("./" + str(i) + "/unfixed-radius/grain_freq/grain_frequencies.out", "w")
+                        print(stdout.decode(), file=output)
+                        print(stderr.decode(), file=output)   
+                        output.close()
+                        if os.path.isfile("./" + str(i) + "/unfixed-radius/grain_freq/xtbhess.xyz"):
+                            print("N", file=Results)
+                            Results.close()
+                        else:
+                            print("B", file=Results)
+                            Results.close()
+
+                else:
+                    Results = open("./results_extreme_frequencies_lorenzo_unfixed_grain.txt", "a")
+                    print(str(i) + " N", file=Results)
+                    Results.close()
+            else:
+                Results = open("./results_extreme_frequencies_lorenzo_unfixed_grain.txt", "a")
+                print(str(i) + " N", file=Results)
+                Results.close()
+
+def othermethod_func():
+    #Create every input for the fixed part
+    for i in range(len_grid):
+        subprocess.call(['mkdir', str(i)])
+        io.write('./' + str(i) + '/BE_' + str(i) + '.xyz', sphere + sphere_grid[len_sphere + i*len_molecule:len_sphere + (i+1)*len_molecule])
+    
+    #Compute the BE with the grain totally fixed
+    for i in range(len_grid):
+        process = subprocess.Popen(['xtb', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        
+        stdout, stderr = process.communicate()
+        output = open("./" + str(i) + "/BE_" + str(i) + ".out", "w")
+        print(stdout.decode(), file=output)
+        print(stderr.decode(), file=output)   
+        output.close()
+        subprocess.call(['mv', './' + str(i) + '/xtbopt.log', './' + str(i) + '/movie.xyz'])
+
 sphere = io.read('./' + grain) 
-print(grid_building(sphere,level)) 
+
+if nofixed is False and onlyunfixed is False and onlyfreq is False:
+    grid_building(sphere,level)
+if os.path.isfile('grid.xyz') is False:
+    print('No grid.xyz file')
+    exit()
 sphere_grid = io.read('./grid.xyz')
 
 len_sphere = len(sphere)
@@ -283,245 +611,14 @@ len_sphere_grid = len(sphere_grid)
 len_molecule = len(molecule(molecule_to_sample))
 len_grid = int((len_sphere_grid - len_sphere)/len_molecule)
 
-#Start of the grain totally fixed part of BE computation
+if othermethod is True:
+    othermethod_func()
 
-#Create every input for the fixed part
-for i in range(len_grid):
-    subprocess.call(['mkdir', str(i)])
-    file_xtb_input = open("./" + str(i) + "/xtb.inp","w")
-    print("$constrain", file=file_xtb_input)
-    print("    atoms: 1-" + str(len_sphere), file=file_xtb_input)
-    print("$end", file=file_xtb_input)
-    file_xtb_input.close()
-    io.write('./' + str(i) + '/BE_' + str(i) + '.xyz', sphere + sphere_grid[len_sphere + i*len_molecule:len_sphere + (i+1)*len_molecule])
+if nofixed is False and onlyunfixed is False and onlyfreq is False and othermethod is False:
+    fixed()
+if onlyfixed is False and onlyfreq is False and othermethod is False:
+    unfixed()
 
-#Compute the BE with the grain totally fixed
-for i in range(len_grid):
-    process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    
-    stdout, stderr = process.communicate()
-    output = open("./" + str(i) + "/BE_" + str(i) + ".out", "w")
-    print(stdout.decode(), file=output)
-    print(stderr.decode(), file=output)   
-    output.close()
-    subprocess.call(['mv', './' + str(i) + '/xtbopt.log', './' + str(i) + '/movie.xyz'])
-
-#Start of the unfixed radius part of the BE computation
-for i in range(len_grid):
-    subprocess.call(['mkdir', './' + str(i) + '/unfixed-radius'])
-    subprocess.call(['cp', './' + str(i) + '/xtbopt.xyz', './' + str(i) + '/unfixed-radius/BE_' + str(i) + '.xyz'])
-
-    input_BE_unfixed  = './' + str(i) + '/unfixed-radius/BE_' + str(i) + '.xyz'
-    df_xyz_test = FromXYZtoDataframeMolecule(input_BE_unfixed) 
-    mol_ref = df_xyz_test['Molecules'].max()
-    df_xyz_test = LabelMoleculesRadius(df_xyz_test,mol_ref,radius_unfixed)
-    grain_structure = df_xyz_test.to_numpy()
-
-    for k in range(len(grain_structure[:,5])):
-        if grain_structure[k,5] == "M":
-            if "list_fix" in globals():
-                list_fix = np.append(list_fix,k)
-            else:
-                list_fix = k
-        elif grain_structure[k,5] == "H" and grain_structure[k,4]!=mol_ref:
-            if "list_not_fix" in globals():
-                list_not_fix = np.append(list_not_fix,k)
-            else:
-                list_not_fix = k
-
-    file_xtb_unfixed_input = open("./" + str(i) + "/unfixed-radius/xtb.inp","w")
-    print("$constrain", file=file_xtb_unfixed_input)
-    print("    atoms: ", end="", file=file_xtb_unfixed_input)
-
-    for k in range(len(list_fix)):
-        if k!=0:
-            if k==len(list_fix)-1:
-                if last_fix == k - 1:
-                    print("-" + str(list_fix[k]+1), end="", file=file_xtb_unfixed_input)
-                    j = j + 1
-                else:
-                    print("," + str(list_fix[k]+1), end="", file=file_xtb_unfixed_input)
-            else:
-                if list_fix[last_fix] == list_fix[k] - 1:
-                    last_fix = k
-                else:
-                    print("-" + str(list_fix[last_fix]+1) + "," + str(list_fix[k]+1), end="", file=file_xtb_unfixed_input)
-                    last_fix = k
-                    j = j + 1
-        elif k==0:
-            j = 0
-            last_fix = k
-            print(list_fix[k]+1, end="", file=file_xtb_unfixed_input)
-
-    print("\n$end", file=file_xtb_unfixed_input)
-    file_xtb_unfixed_input.close()
-
-    if "list_not_fix" in globals():
-        del list_not_fix
-    else:
-        file_list_discarded = open(list_discarded, "a")
-        print(str(i) + "    N", file=file_list_discarded)
-        file_list_discarded.close()
-
-    if "list_fix" in globals(): 
-        del list_fix
-
-try:
-    open(list_discarded, "r")
-except FileNotFoundError:
-    list_not_discarded = np.arange(len_grid)
-else:
-    list_not_discarded = np.arange(len_grid)
-    file_list_discarded = np.loadtxt(list_discarded, dtype=str)
-    file_list_discarded = np.atleast_2d(file_list_discarded)
-    list_discarded_array = file_list_discarded[:,0].astype(int)
-    list_not_discarded = np.setdiff1d(list_not_discarded, list_discarded_array)
-
-for i in range(len_grid):
-    if i in list_not_discarded:
-        process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    
-        stdout, stderr = process.communicate()
-        output = open("./" + str(i) + "/unfixed-radius/BE_" + str(i) + ".out", "w")
-        print(stdout.decode(), file=output)
-        print(stderr.decode(), file=output)   
-        output.close()
-        subprocess.call(['mv', './' + str(i) + '/unfixed-radius/xtbopt.log', './' + str(i) + '/unfixed-radius/movie.xyz'])
-
-        restart_BE = 0
-        equal_structure = False 
-
-        while equal_structure!=True:
-            
-            if os.path.isfile("NOT_CONVERGED"):
-                equal_structure = True
-                Results = open("./results_lorenzo_unfixed_grain.txt", "a")
-                print(str(i) + " N", file=Results)
-                Results.close()
-                continue
-            
-            input_file  = './' + str(i) + '/unfixed-radius/BE_' + str(i) + '.xyz'
-            df_xyz_test2 = FromXYZtoDataframeMolecule(input_file) 
-            mol_ref2 = df_xyz_test2['Molecules'].max()
-            df_xyz_test2 = LabelMoleculesRadius(df_xyz_test2,mol_ref2,radius_unfixed)
-            grain_structure2 = df_xyz_test2.to_numpy()
-    
-            output_file  = './' + str(i) + '/unfixed-radius/xtbopt.xyz'
-            df_xyz_test = FromXYZtoDataframeMolecule(output_file) 
-            mol_ref = df_xyz_test['Molecules'].max()
-            df_xyz_test = LabelMoleculesRadius(df_xyz_test,mol_ref,radius_unfixed)
-            grain_structure = df_xyz_test.to_numpy()
-    
-            if np.array_equal(grain_structure[:,5],grain_structure2[:,5])==False:
-                print(str(i) + " prout")
-                subprocess.call(['mv', './' + str(i) + '/unfixed-radius', './' + str(i) + '/' + str(restart_BE)])
-                subprocess.call(['mkdir', './' + str(i) + '/unfixed-radius'])
-                subprocess.call(['cp', './' + str(i) + '/' + str(restart_BE) + '/xtbopt.xyz', './' + str(i) + '/unfixed-radius/BE_' + str(i) + '.xyz'])
-    
-                for k in range(len(grain_structure[:,5])):
-                    if grain_structure[k,5] == "M":
-                        if "list_fix" in globals():
-                           list_fix = np.append(list_fix,k)
-                        else:
-                             list_fix = k
-                    elif grain_structure[k,5] == "H" and grain_structure[k,4]!=mol_ref:
-                        if "list_not_fix" in globals():
-                            list_not_fix = np.append(list_not_fix,k)
-                        else:
-                            list_not_fix = k
-    
-                file_xtb_unfixed_input = open("./" + str(i) + "/unfixed-radius/xtb.inp","w")
-                print("$constrain", file=file_xtb_unfixed_input)
-                print("    atoms: ", end="", file=file_xtb_unfixed_input)
-            
-                for k in range(len(list_fix)):
-                    if k!=0:
-                        if k==len(list_fix)-1:
-                            if last_fix == k - 1:
-                                print("-" + str(list_fix[k]+1), end="", file=file_xtb_unfixed_input)
-                                m = m + 1
-                            else:
-                                print("," + str(list_fix[k]+1), end="", file=file_xtb_unfixed_input)
-                        else:
-                            if list_fix[last_fix] == list_fix[k] - 1:
-                                last_fix = k
-                            else:
-                                print("-" + str(list_fix[last_fix]+1) + "," + str(list_fix[k]+1), end="", file=file_xtb_unfixed_input)
-                                last_fix = k
-                                m = m + 1
-                    elif k==0:
-                        m = 0
-                        last_fix = k
-                        print(list_fix[k]+1, end="", file=file_xtb_unfixed_input)
-            
-                print("\n$end", file=file_xtb_unfixed_input)
-                file_xtb_unfixed_input.close()
-
-                del list_fix
-                del list_not_fix
-
-
-                process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-                stdout, stderr = process.communicate()
-                output = open("./" + str(i) + "/unfixed-radius/BE_" + str(i) + ".out", "w")
-                print(stdout.decode(), file=output)
-                print(stderr.decode(), file=output)   
-                output.close()
-                subprocess.call(['mv', './' + str(i) + '/unfixed-radius/xtbopt.log', './' + str(i) + '/unfixed-radius/movie.xyz'])  
-
-                restart_BE = restart_BE + 1
-            else:
-                equal_structure = True
-        if restart_BE > 0:
-            for l in range(restart_BE):
-                subprocess.call(['mv', './' + str(i) + '/' + str(l), './' + str(i) + '/unfixed-radius'])
-        if os.path.isfile("NOT_CONVERGED") == False:
-            Results = open("./results_lorenzo_unfixed_grain.txt", "a")
-            print(str(i) + " Y", file=Results)
-            Results.close()
-
-file_unfixed_discarded = np.loadtxt("./results_lorenzo_unfixed_grain.txt", dtype=str)
-list_unfixed_discarded = np.atleast_2d(file_unfixed_discarded)
-
-for i in range(len_grid):
-    if i in list_not_discarded:
-        if list_unfixed_discarded[i,1] == "Y":
-                process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'xtbopt.xyz', '--hess', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                stdout, stderr = process.communicate()
-                output = open("./" + str(i) + "/unfixed-radius/BE_" + str(i) + "_frequencies.out", "w")
-                print(stdout.decode(), file=output)
-                print(stderr.decode(), file=output)   
-                output.close()
-
-                Results = open("./results_extreme_frequencies_lorenzo_unfixed_grain.txt", "a")
-                if os.path.isfile("./" + str(i) + "/unfixed-radius/xtbhess.xyz"):
-                    print("N", file=Results)
-                    Results.close()
-                else:
-
-                    subprocess.call(['mkdir', './' + str(i) + '/unfixed-radius/grain_freq'])
-                    subprocess.call(['cp', './' + grain, './' + str(i) + '/unfixed-radius/grain_freq/'])
-                    subprocess.call(['cp', './' + str(i) + '/unfixed-radius/xtb.inp', './' + str(i) + '/unfixed-radius/grain_freq/'])
-                    process = subprocess.Popen(['xtb', '--input', 'xtb.inp', grain, '--hess', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius/grain_freq', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-                    stdout, stderr = process.communicate()
-                    output = open("./" + str(i) + "/unfixed-radius/grain_freq/grain_frequencies.out", "w")
-                    print(stdout.decode(), file=output)
-                    print(stderr.decode(), file=output)   
-                    output.close()
-                    if os.path.isfile("./" + str(i) + "/unfixed-radius/grain_freq/xtbhess.xyz"):
-                        print("N", file=Results)
-                        Results.close()
-                    else:
-                        print("B", file=Results)
-                        Results.close()
-
-        else:
-            Results = open("./results_extreme_frequencies_lorenzo_unfixed_grain.txt", "a")
-            print(str(i) + " N", file=Results)
-            Results.close()
-    else:
-        Results = open("./results_extreme_frequencies_lorenzo_unfixed_grain.txt", "a")
-        print(str(i) + " N", file=Results)
-        Results.close()
+if nofreq is False and onlyfixed is False and onlyunfixed is False:
+#Block for frequencies computation
+    frequencies(othermethod)
