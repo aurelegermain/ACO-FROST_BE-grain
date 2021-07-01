@@ -24,6 +24,8 @@ parser.add_argument("-g", "--gfn", help="GFN-xTB method to use (0,1,2, or ff)", 
 parser.add_argument("-r", "--radius", help="Radius for unfixing molecules", type=float, default="5")
 parser.add_argument("-om","--othermethod", action='store_true', help="Other method without the fixing of anything. Temporary name.")
 parser.add_argument("-restart", "--restart", help="If the calculation is a restart and from where it restart", type=int, default="0")
+parser.add_argument("-gc", "--grid_continue", nargs='+', help="If you want to increase the size of the grid. First number is the first level of grid used, second number is the level desired", type=int, default=[0,0])
+
 #Conflicting options part
 
 #conflict between -onlyfreq and -nofreq
@@ -56,6 +58,7 @@ onlyunfixed = args.onlyunfixed
 onlyfreq = args.onlyfreq
 othermethod = args.othermethod
 restart = args.restart
+list_args_grid_continue = args.grid_continue
 
 #flags compatibility test
 
@@ -68,7 +71,22 @@ steps = 0.1
 
 list_discarded = "list_discarded.txt"
 
-def grid_building(sphere, level):
+def grid_continue(starting_grid, ending_grid):
+    list_size_grid = np.atleast_1d(np.zeros(ending_grid + 1))
+
+    for i in range(len(list_size_grid)):
+        if i == 0:
+            list_size_grid[i] = 12
+        else:
+            list_size_grid[i] = list_size_grid[i - 1] + 2**(2*(i + 1) + 1) - 2**(2*(i - 1) + 1)
+    if (ending_grid - starting_grid) ==0:
+        continue_grid = 0
+    else:
+        continue_grid = int(list_size_grid[starting_grid])
+
+    return continue_grid
+
+def grid_building(sphere, level, continue_grid):
     a = 2*np.cos(np.pi/5)
     unit_sphere = np.sqrt(1 + 4*np.square(np.cos(np.pi/5)))
     seed = np.array((0,a,1))
@@ -122,34 +140,33 @@ def grid_building(sphere, level):
     
     #this is simply to project on a sphere with a radius taken from the grain model to sample
     distance_max = np.amax(distances_3d(sphere)) + 1
+    if continue_grid == 0:
+        #make a directory wth the name of the molecule + _xtb. To store the xtb files of the molecule to sample
+        subprocess.call(['mkdir', molecule_to_sample + '_xtb'])
 
-    #make a directory wth the name of the molecule + _xtb. To store the xtb files of the molecule to sample
-    subprocess.call(['mkdir', molecule_to_sample + '_xtb'])
+        io.write('./' + molecule_to_sample + '_xtb/' + molecule_to_sample + '_inp.xyz', molecule(molecule_to_sample))
+        process = subprocess.Popen(['xtb', molecule_to_sample + '_inp.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + molecule_to_sample + '_xtb', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    io.write('./' + molecule_to_sample + '_xtb/' + molecule_to_sample + '_inp.xyz', molecule(molecule_to_sample))
-    process = subprocess.Popen(['xtb', molecule_to_sample + '_inp.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + molecule_to_sample + '_xtb', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    
-    stdout, stderr = process.communicate()
-    output = open("./" + molecule_to_sample + "_xtb/output", "w")
-    print(stdout.decode(), file=output)
-    print(stderr.decode(), file=output)   
-    output.close()
+        stdout, stderr = process.communicate()
+        output = open("./" + molecule_to_sample + "_xtb/output", "w")
+        print(stdout.decode(), file=output)
+        print(stderr.decode(), file=output)   
+        output.close()
 
-    subprocess.call(['mv', './' + molecule_to_sample + '_xtb/xtbopt.xyz', './' + molecule_to_sample + '_xtb/' + molecule_to_sample + '.xyz'])
+        subprocess.call(['mv', './' + molecule_to_sample + '_xtb/xtbopt.xyz', './' + molecule_to_sample + '_xtb/' + molecule_to_sample + '.xyz'])
 
-    process = subprocess.Popen(['xtb', molecule_to_sample + '.xyz', '--hess', '--gfn' + gfn, '--verbose'], cwd='./' + molecule_to_sample + '_xtb', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(['xtb', molecule_to_sample + '.xyz', '--hess', '--gfn' + gfn, '--verbose'], cwd='./' + molecule_to_sample + '_xtb', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    stdout, stderr = process.communicate()
-    output = open("./" + molecule_to_sample + "_xtb/frequencies", "w")
-    print(stdout.decode(), file=output)
-    print(stderr.decode(), file=output)   
-    output.close()
+        stdout, stderr = process.communicate()
+        output = open("./" + molecule_to_sample + "_xtb/frequencies", "w")
+        print(stdout.decode(), file=output)
+        print(stderr.decode(), file=output)   
+        output.close()
 
     #this is the molecule that will be added for each rid point.
     atoms_to_add = io.read('./' + molecule_to_sample + '_xtb/' + molecule_to_sample + '.xyz') 
 
- 
-    for i in range(len(grid)):
+    for i in range(len(grid) - continue_grid):
         atoms_to_add2 = deepcopy(atoms_to_add)
         #rotate the molecule randomly
         angle_mol = rng.random(3)*360
@@ -158,19 +175,24 @@ def grid_building(sphere, level):
         atoms_to_add2.rotate(angle_mol[2], "z")
 
         for j in range(len(atoms_to_add)):
-            atoms_to_add2[j].position = atoms_to_add2[j].position + grid[i]*distance_max
+            atoms_to_add2[j].position = atoms_to_add2[j].position + grid[i + continue_grid]*distance_max
         if i == 0:
             atoms = atoms_to_add2
         else:
             atoms = atoms + atoms_to_add2
-    io.write('./grid_first.xyz', sphere + atoms)
+    if continue_grid == 0:
+        io.write('./grid_first.xyz', sphere + atoms)
+    else:
+        grid_first_old = io.read('./grid_first.xyz') 
+        io.write('./grid_first.xyz', grid_first_old + atoms)
 
     position_mol = np.zeros(3)
-    for i in range(len(grid)): #atoms[i,len(atom2) + 1]
+    for i in range(len(grid) - continue_grid): #atoms[i,len(atom2) + 1]
         iter_steps = 0
-        radius = np.sqrt(np.square(grid[i,0]*distance_max) + np.square(grid[i,1]*distance_max) + np.square(grid[i,2]*distance_max))
-        theta = np.arccos(grid[i,2]*distance_max/radius)
-        phi = np.arctan2(grid[i,1]*distance_max,grid[i,0]*distance_max)
+        i_continue = int(i + continue_grid)
+        radius = np.sqrt(np.square(grid[i_continue,0]*distance_max) + np.square(grid[i_continue,1]*distance_max) + np.square(grid[i_continue,2]*distance_max))
+        theta = np.arccos(grid[i_continue,2]*distance_max/radius)
+        phi = np.arctan2(grid[i_continue,1]*distance_max,grid[i_continue,0]*distance_max)
         molecule_to_move = barycentre(atoms[i*len(atoms_to_add):(i+1)*len(atoms_to_add)])
         while np.amin(distances_ab(atoms[i*len(atoms_to_add):(i+1)*len(atoms_to_add)], sphere)) > distance * coeff_max or np.amin(distances_ab(atoms[i*len(atoms_to_add):(i+1)*len(atoms_to_add)], sphere)) < distance / coeff_min:
             
@@ -185,8 +207,11 @@ def grid_building(sphere, level):
 
             for j in range(len(atoms_to_add)):
                 atoms[i*len(atoms_to_add)+j].position = molecule_to_move[j].position + position_mol
-   
-    io.write('./grid.xyz', sphere + atoms)
+    if continue_grid == 0:
+        io.write('./grid.xyz', sphere + atoms)
+    else:
+        grid_old = io.read('./grid.xyz') 
+        io.write('./grid.xyz', grid_old + atoms)
 
 def distances_3d(atoms):
     x = atoms.get_positions()[:,0] if hasattr(atoms, '__len__') else atoms.position[0]
@@ -306,9 +331,11 @@ def LabelMoleculesRadius(df_xyz,mol_ref,radius):
 	return(df_xyz)
 
 #Start of the grain totally fixed part of BE computation
-def fixed(restart):
+def fixed(restart, continue_grid):
     #Create every input for the fixed part
     for i in range(len_grid):
+        if i < continue_grid:
+            continue
         subprocess.call(['mkdir', str(i)])
         file_xtb_input = open("./" + str(i) + "/xtb.inp","w")
         print("$constrain", file=file_xtb_input)
@@ -319,7 +346,7 @@ def fixed(restart):
     
     #Compute the BE with the grain totally fixed
     for i in range(len_grid):
-        if i < restart:
+        if i < restart or i < continue_grid:
             continue
         process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
@@ -330,11 +357,13 @@ def fixed(restart):
         output.close()
         subprocess.call(['mv', './' + str(i) + '/xtbopt.log', './' + str(i) + '/movie.xyz'])
 
-def unfixed(restart):
+def unfixed(restart, continue_grid):
     #Start of the unfixed radius part of the BE computation
     for i in range(len_grid):
         if restart > 0: 
             break
+        if i < continue_grid:
+            continue
         if os.path.isdir('./' + str(i) + '/') is False:
             print('Folder with geometry needed not found')
             exit()
@@ -409,7 +438,7 @@ def unfixed(restart):
         list_not_discarded = np.setdiff1d(list_not_discarded, list_discarded_array)
     
     for i in range(len_grid):
-        if i < restart:
+        if i < restart or i < continue_grid:
             continue
         if i in list_not_discarded:
             process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -514,22 +543,23 @@ def unfixed(restart):
                 print(str(i) + " Y", file=Results)
                 Results.close()
 
-def frequencies(restart, othermethod):
+def frequencies(restart, othermethod, continue_grid):
     grain_freq = False
     for i in range(len_grid):
         if os.path.isdir('./' + str(i) + '/') is True and os.path.isfile('./' + str(i) + '/xtb.inp') is False and grain_freq is False:
             othermethod = True
-            process = subprocess.Popen(['xtb', grain, '--hess', '--gfn' + gfn, '--verbose'], cwd='./', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            stdout, stderr = process.communicate()
-            output = open("./grain_frequencies.out", "w")
-            print(stdout.decode(), file=output)
-            print(stderr.decode(), file=output)   
-            output.close()
+            if continue_grid == 0:
+                process = subprocess.Popen(['xtb', grain, '--hess', '--gfn' + gfn, '--verbose'], cwd='./', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
+                output = open("./grain_frequencies.out", "w")
+                print(stdout.decode(), file=output)
+                print(stderr.decode(), file=output)   
+                output.close()
             grain_freq = True
             break
     if othermethod is True:
         for i in range(len_grid):
-            if i < restart:
+            if i < restart or i < continue_grid:
                 continue
             if os.path.isdir('./' + str(i) + '/') is False:
                 print('Folder with geometry needed not found')
@@ -555,7 +585,7 @@ def frequencies(restart, othermethod):
         file_unfixed_discarded = np.loadtxt("./results_lorenzo_unfixed_grain.txt", dtype=str)
         list_unfixed_discarded = np.atleast_2d(file_unfixed_discarded)
         for i in range(len_grid):
-            if i < restart:
+            if i < restart or i < continue_grid:
                 continue
             if i in list_not_discarded:
                 if list_unfixed_discarded[i,1] == "Y":
@@ -601,17 +631,19 @@ def frequencies(restart, othermethod):
                 print(str(i) + " N", file=Results)
                 Results.close()
 
-def othermethod_func(restart):
+def othermethod_func(restart, continue_grid):
     #Create every input for the fixed part
     for i in range(len_grid):
         if restart > 0:
             break
+        if i < continue_grid:
+            continue
         subprocess.call(['mkdir', str(i)])
         io.write('./' + str(i) + '/BE_' + str(i) + '.xyz', sphere + sphere_grid[len_sphere + i*len_molecule:len_sphere + (i+1)*len_molecule])
     
     #Compute the BE with the grain totally fixed
     for i in range(len_grid):
-        if i < restart:
+        if i < restart or i < continue_grid:
             continue
         process = subprocess.Popen(['xtb', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
@@ -624,8 +656,10 @@ def othermethod_func(restart):
 
 sphere = io.read('./' + grain) 
 
+continue_grid = grid_continue(list_args_grid_continue[0], list_args_grid_continue[1])
+
 if nofixed is False and onlyunfixed is False and onlyfreq is False:
-    grid_building(sphere,level)
+    grid_building(sphere,level, continue_grid)
 if os.path.isfile('grid.xyz') is False:
     print('No grid.xyz file')
     exit()
@@ -638,19 +672,19 @@ len_molecule = len(molecule(molecule_to_sample))
 len_grid = int((len_sphere_grid - len_sphere)/len_molecule)
 
 if othermethod is True and onlyfreq is False:
-    othermethod_func(restart)
+    othermethod_func(restart, continue_grid)
     restart = 0
 
 if nofixed is False and onlyunfixed is False and onlyfreq is False and othermethod is False:
-    fixed(restart)
+    fixed(restart, continue_grid)
     restart = 0
 if onlyfixed is False and onlyfreq is False and othermethod is False:
-    unfixed(restart)
+    unfixed(restart, continue_grid)
     restart = 0
 
 if nofreq is False and onlyfixed is False and onlyunfixed is False:
 #Block for frequencies computation
-    frequencies(restart,othermethod)
+    frequencies(restart,othermethod, continue_grid)
     restart = 0
 
 def energy_opt(file_opt):
