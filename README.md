@@ -20,10 +20,10 @@ A python code using GFN-xTB [[1][2][3]](#1) to compute binding energies of the c
 
 ## References
 <a id ="1">[1]</a>
-Bannwarth, C.; Ehlert, S.; Grimme, S. GFN2-xTB—An Accurate and Broadly Parametrized Self-Consistent Tight-Binding Quantum Chemical Method with Multipole Electrostatics and Density-Dependent Dispersion Contributions J. Chem. Theory Comput. 2019, 15 (3), 1652–1671 DOI: 10.1021/acs.jctc.8b01176
+Bannwarth, C.; Ehlert, S.; Grimme, S. GFN2-xTB—An Accurate and Broadly Parametrized Self-Consistent Tight-Binding Quantum Chemical Method with Multipole Electrostatics and Density-Dependent Dispersion Contributions J. Chem. Theory Comput. **2019**, 15 (3), 1652–1671 DOI: 10.1021/acs.jctc.8b01176
 
 <a id ="2">[2]</a>
-Grimme, S.; Bannwarth, C.; Shushkov, P. A Robust and Accurate Tight-Binding Quantum Chemical Method for Structures, Vibrational Frequencies, and Noncovalent Interactions of Large Molecular Systems Parameterized for All spd-Block Elements (Z = 1-86). J. Chem. Theory Comput. 2017, 13 (5), 1989-2009 DOI: 10.1021/acs.jctc.7b00118
+Grimme, S.; Bannwarth, C.; Shushkov, P. A Robust and Accurate Tight-Binding Quantum Chemical Method for Structures, Vibrational Frequencies, and Noncovalent Interactions of Large Molecular Systems Parameterized for All spd-Block Elements (Z = 1-86). J. Chem. Theory Comput. **2017**, 13 (5), 1989-2009 DOI: 10.1021/acs.jctc.7b00118
 
 <a id ="3">[3]</a>
-Spicher, S.; Grimme, S. Robust atomistic modeling of materials, organometallic and biochemical systems Angew. Chem. Int. Ed. 2020, accepted article, DOI: 10.1002/anie.202004239
+Spicher, S.; Grimme, S. Robust atomistic modeling of materials, organometallic and biochemical systems Angew. Chem. Int. Ed. **2020**, accepted article, DOI: 10.1002/anie.202004239
