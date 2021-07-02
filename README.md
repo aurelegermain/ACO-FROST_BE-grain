@@ -5,7 +5,7 @@ A python code using GFN-xTB [[1][2][3]](#1) to compute binding energies of the c
 ## Arguments
 
 - `grain_structure_name.xyz` XYZ file containing the grain structure **Mandatory**
-- `-level int` the grid level wanted by the user. Level 0 has 12 grid points, 1 has 42, 3 has 162. From [[4]](#4) *Default = 0.*
+- `-level int` the grid level wanted by the user. Level 0 has 12 grid points, 1 has 42, 3 has 162 (From [[4]](#4)). *Default = 0.*
 - `-mol str` Molecule to study. Example: H2O. **Mandatory**
 - `-g str or int` GFN-xTB method to use (0,1,2 or ff). *Default = 2.*
 - `-r float` Radius size in Ångström to use during the unfixed computation of the BEs. *Default = 5.*
