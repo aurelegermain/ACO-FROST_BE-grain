@@ -21,7 +21,6 @@ import argparse
 import math
 import os
 from itertools import combinations
-import conflictsparse
 
 rng = np.random.default_rng()
 
@@ -172,8 +171,8 @@ def grid_building(sphere, level, continue_grid):
 
         stdout, stderr = process.communicate()
         output = open("./" + molecule_to_sample + "_xtb/output", "w")
-        print(stdout.decode(), file=output)
-        print(stderr.decode(), file=output)   
+        print(stdout.decode(errors="replace"), file=output)
+        print(stderr.decode(errors="replace"), file=output)   
         output.close()
 
         subprocess.call(['mv', './' + molecule_to_sample + '_xtb/xtbopt.xyz', './' + molecule_to_sample + '_xtb/' + molecule_to_sample + '.xyz'])
@@ -182,8 +181,8 @@ def grid_building(sphere, level, continue_grid):
 
         stdout, stderr = process.communicate()
         output = open("./" + molecule_to_sample + "_xtb/frequencies", "w")
-        print(stdout.decode(), file=output)
-        print(stderr.decode(), file=output)   
+        print(stdout.decode(errors="replace"), file=output)
+        print(stderr.decode(errors="replace"), file=output)   
         output.close()
 
     #this is the molecule that will be added for each rid point.
@@ -392,8 +391,8 @@ def fixed(restart, continue_grid):
         
         stdout, stderr = process.communicate()
         output = open("./" + str(i) + "/BE_" + str(i) + ".out", "w")
-        print(stdout.decode(), file=output)
-        print(stderr.decode(), file=output)   
+        print(stdout.decode(errors="replace"), file=output)
+        print(stderr.decode(errors="replace"), file=output)   
         output.close()
         subprocess.call(['mv', './' + str(i) + '/xtbopt.log', './' + str(i) + '/movie.xyz'])
 
@@ -516,8 +515,8 @@ def unfixed(restart, continue_grid):
         
             stdout, stderr = process.communicate()
             output = open("./" + str(i) + "/unfixed-radius/BE_" + str(i) + ".out", "w")
-            print(stdout.decode(), file=output)
-            print(stderr.decode(), file=output)   
+            print(stdout.decode(errors="replace"), file=output)
+            print(stderr.decode(errors="replace"), file=output)   
             output.close()
             subprocess.call(['mv', './' + str(i) + '/unfixed-radius/xtbopt.log', './' + str(i) + '/unfixed-radius/movie.xyz'])
     
@@ -606,8 +605,8 @@ def unfixed(restart, continue_grid):
     
                     stdout, stderr = process.communicate()
                     output = open("./" + str(i) + "/unfixed-radius/BE_" + str(i) + ".out", "w")
-                    print(stdout.decode(), file=output)
-                    print(stderr.decode(), file=output)   
+                    print(stdout.decode(errors="replace"), file=output)
+                    print(stderr.decode(errors="replace"), file=output)   
                     output.close()
                     subprocess.call(['mv', './' + str(i) + '/unfixed-radius/xtbopt.log', './' + str(i) + '/unfixed-radius/movie.xyz'])  
     
@@ -658,8 +657,8 @@ def frequencies(restart, othermethod, continue_grid):
                     process = subprocess.Popen(['xtb', grain, '--hess', '--gfn' + gfn, '--verbose'], cwd='./', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     stdout, stderr = process.communicate()
                     output = open("./grain_frequencies.out", "w")
-                    print(stdout.decode(), file=output)
-                    print(stderr.decode(), file=output)   
+                    print(stdout.decode(errors="replace"), file=output)
+                    print(stderr.decode(errors="replace"), file=output)   
                     output.close()
                 if os.path.isfile("./xtbhess.xyz"):
                     print(r'Can\'t perform frequencies computation, the grain structure has imaginary frequencies.')
@@ -678,8 +677,8 @@ def frequencies(restart, othermethod, continue_grid):
                 process = subprocess.Popen(['xtb', 'xtbopt.xyz', '--hess', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 stdout, stderr = process.communicate()
                 output = open("./" + str(i) + "/BE_" + str(i) + "_frequencies.out", "w")
-                print(stdout.decode(), file=output)
-                print(stderr.decode(), file=output)   
+                print(stdout.decode(errors="replace"), file=output)
+                print(stderr.decode(errors="replace"), file=output)   
                 output.close()
 
                 Results = open("./results_extreme_frequencies_othermethod.txt", "a")
@@ -708,8 +707,8 @@ def frequencies(restart, othermethod, continue_grid):
                     process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'xtbopt.xyz', '--hess', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     stdout, stderr = process.communicate()
                     output = open("./" + str(i) + "/unfixed-radius/BE_" + str(i) + "_frequencies.out", "w")
-                    print(stdout.decode(), file=output)
-                    print(stderr.decode(), file=output)   
+                    print(stdout.decode(errors="replace"), file=output)
+                    print(stderr.decode(errors="replace"), file=output)   
                     output.close()
 
                     Results = open("./results_extreme_frequencies_lorenzo_unfixed_grain.txt", "a")
@@ -730,8 +729,8 @@ def frequencies(restart, othermethod, continue_grid):
 
                         stdout, stderr = process.communicate()
                         output = open("./" + str(i) + "/unfixed-radius/grain_freq/grain_frequencies.out", "w")
-                        print(stdout.decode(), file=output)
-                        print(stderr.decode(), file=output)   
+                        print(stdout.decode(errors="replace"), file=output)
+                        print(stderr.decode(errors="replace"), file=output)   
                         output.close()
                         if os.path.isfile("./" + str(i) + "/unfixed-radius/grain_freq/xtbhess.xyz"):
                             print("N", file=Results)
@@ -771,8 +770,8 @@ def othermethod_func(restart, continue_grid):
         
         stdout, stderr = process.communicate()
         output = open("./" + str(i) + "/BE_" + str(i) + ".out", "w")
-        print(stdout.decode(), file=output)
-        print(stderr.decode(), file=output)   
+        print(stdout.decode(errors="replace"), file=output)
+        print(stderr.decode(errors="replace"), file=output)   
         output.close()
         subprocess.call(['mv', './' + str(i) + '/xtbopt.log', './' + str(i) + '/movie.xyz'])
 

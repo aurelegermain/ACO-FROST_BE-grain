@@ -529,3 +529,4 @@ list_discarded.txt
 41/unfixed-radius/xtbopt.xyz
 41/unfixed-radius/grain_freq/sphere.xyz
 41/unfixed-radius/grain_freq/xtb.inp
+test_other.py

@@ -26,6 +26,11 @@ A python code using GFN-xTB [[1][2][3]](#1) to compute binding energies of the c
 
 - `python3 BE.py grain.xyz -level 2 -mol HCOOH -g 1 -restart 87 -nofixed` Takes a previously stoped computation and restart it at the BE in the folder 87. In that case we presume that the fixed computation were done but the unfixed stopped at the BE 87. The computation will continue for the unfixed BE and then compute the frequencies starting from the BE in the folder 0. 
 
+## Task list
+
+- [] Divide computations on multiple nodes
+- [] More than one molecular rotation per BE positions 
+
 ## References
 <a id ="1">[1]</a>
 Bannwarth, C.; Ehlert, S.; Grimme, S. GFN2-xTB—An Accurate and Broadly Parametrized Self-Consistent Tight-Binding Quantum Chemical Method with Multipole Electrostatics and Density-Dependent Dispersion Contributions J. Chem. Theory Comput. **2019**, 15 (3), 1652–1671 DOI: https://doi.org/10.1021/acs.jctc.8b01176
