@@ -319,7 +319,7 @@ def FromXYZtoDataframeMolecule(input_file):
     df_xyz['Z'].astype(float)
     #compute neighbor of the atoms in xyz format with ASE package
     mol = io.read(input_file)
-    cutOff = neighborlist.natural_cutoffs(mol)
+    cutOff = neighborlist.natural_cutoffs(mol, mult=0.9)
     neighborList = neighborlist.NeighborList(cutOff, self_interaction=False, bothways=True)
     neighborList.update(mol)
     #create molecules column in dataframe related to connectivity, molecules start from 0
@@ -725,14 +725,14 @@ def frequencies(restart, othermethod, continue_grid, list_range):
 
                 Results = open("./results_extreme_frequencies_othermethod.txt", "a")
                 if os.path.isfile("./" + str(i) + "/xtbhess.xyz"):
-                    print("N", file=Results)
+                    print(str(i) + " N", file=Results)
                     Results.close()
 
                     file_list_discarded = open(list_discarded, "a")
-                    print(str(i) + "    N", file=file_list_discarded)
+                    print(str(i) + " N", file=file_list_discarded)
                     file_list_discarded.close()
                 else:
-                    print("B", file=Results)
+                    print(str(i) + " B", file=Results)
                     Results.close()
     #start of the computation of frequencies for the unfixed-radius part.              
     else:
@@ -760,11 +760,11 @@ def frequencies(restart, othermethod, continue_grid, list_range):
                     Results = open("./results_extreme_frequencies_lorenzo_unfixed_grain.txt", "a")
                     #If imaginary freqencies are present the BE is added to the discarded BE file and the frequencies of the grain are not computed.
                     if os.path.isfile("./" + str(i) + "/unfixed-radius/xtbhess.xyz"):
-                        print("N", file=Results)
+                        print(str(i) + " N", file=Results)
                         Results.close()
                                 
                         file_list_discarded = open(list_discarded, "a")
-                        print(str(i) + "    N", file=file_list_discarded)
+                        print(str(i) + " N", file=file_list_discarded)
                         file_list_discarded.close()
                     else:
                         #Computation of the grain frequencies
@@ -782,14 +782,14 @@ def frequencies(restart, othermethod, continue_grid, list_range):
                         #print(stderr.decode(errors="replace"), file=output)   
                         #output.close()
                         if os.path.isfile("./" + str(i) + "/unfixed-radius/grain_freq/xtbhess.xyz"):
-                            print("N", file=Results)
+                            print(str(i) + " N", file=Results)
                             Results.close()
 
                             file_list_discarded = open(list_discarded, "a")
-                            print(str(i) + "    N", file=file_list_discarded)
+                            print(str(i) + " N", file=file_list_discarded)
                             file_list_discarded.close()
                         else:
-                            print("B", file=Results)
+                            print(str(i) + " B", file=Results)
                             Results.close()
 
                 else:
@@ -833,7 +833,7 @@ def othermethod_func(restart, continue_grid, list_range):
 def start_GFN(gfn, extreme, input_structure, output, folder, input_inp):
     #GFN_start_time = datetime.now()
     if input_inp != 0:
-        process = subprocess.Popen(['xtb', '--inp', input_inp, input_structure,  '--opt', extreme , '--gfn' + gfn, '--verbose'], cwd='./' + folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(['xtb', '--input', input_inp, input_structure,  '--opt', extreme , '--gfn' + gfn, '--verbose'], cwd='./' + folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     else:
         process = subprocess.Popen(['xtb', input_structure, '--opt', extreme , '--gfn' + gfn, '--verbose'], cwd='./' + folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = open(folder + "/" + output, "w")
@@ -946,7 +946,7 @@ def output():
             if os.path.isdir('./' + str(i) + '/unfixed-radius') is True:
                 if os.path.isdir('./' + str(i) + '/unfixed-radius/grain_freq') is True:
                     energy_fixed = energy_opt('./' + str(i) + '/xtbopt.xyz')
-                    energy_unfixed = energy_opt('./' + str(i) + '/xtbopt.xyz')
+                    energy_unfixed = energy_opt('./' + str(i) + '/unfixed-radius/xtbopt.xyz')
                     ZPE = ZPE_freq('./' + str(i) + '/unfixed-radius/BE_' + str(i) + '_frequencies.out')
                     ZPE_grain = ZPE_freq('./' + str(i) + '/unfixed-radius/grain_freq/grain_frequencies.out')
                     BE_fixed = HartreetoKjmol(energy_grain + energy_mol - energy_fixed)
