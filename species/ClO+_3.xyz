@@ -1,0 +1,13 @@
+2
+ClO+_3 (3-SG / C*V)
+Cl     0.000000    -0.000000     0.471076
+ O    -0.000000     0.000000    -1.001036
+
+-------- ENERGY AND PROPERTIES --------
+
+ Rotational constants:       0.0000000       21.2487649       21.2487649 GHz
+
+ EROCCSD(T)/aug-cc-pVTZ = -534.35245371 Eh
+
+ MU_X      MU_Y      MU_Z       MU
+ 0.000    -0.000    0.569    0.569

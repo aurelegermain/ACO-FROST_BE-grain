@@ -1,0 +1,13 @@
+2
+CS+_2 (2-SG / C*V)
+ C     0.000000     0.000000    -1.076257
+ S     0.000000     0.000000     0.403597
+
+-------- ENERGY AND PROPERTIES --------
+
+ Rotational constants:       0.0000000       26.4487019       26.4487019 GHz
+
+ EROCCSD(T)/aug-cc-pVTZ = -435.28335601 Eh
+
+ MU_X      MU_Y      MU_Z       MU
+ 0.000    0.000    -0.945    0.945

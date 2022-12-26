@@ -1,0 +1,13 @@
+2
+LiH_1Sigma (1-SG / C*V)
+Li     0.000000     0.000000     0.397068
+ H     0.000000     0.000000    -1.191204
+
+-------- ENERGY AND PROPERTIES --------
+
+ Rotational constants:       0.0000000       227.3390977       227.3390977 GHz
+
+ ECCSD(T)/aug-cc-pVTZ = -8.0231419502 Eh
+
+ MU_X      MU_Y      MU_Z       MU
+ 0.000    0.000    5.989    5.989

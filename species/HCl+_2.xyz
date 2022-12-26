@@ -1,0 +1,13 @@
+2
+HCl+_2 (2-X / C*V)
+ H     0.000000     0.000000    -1.247671
+Cl     0.000000     0.000000     0.073392
+
+-------- ENERGY AND PROPERTIES --------
+
+ Rotational constants:       0.0000000       295.6137771       295.6137771 GHz
+
+ EROCCSD(T)/aug-cc-pVTZ = -459.87840028 Eh
+
+ MU_X      MU_Y      MU_Z       MU
+ 0.000    0.000    -1.634    1.634

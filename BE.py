@@ -182,7 +182,7 @@ def grid_building(sphere, level, continue_grid):
         #make a directory with the name of the molecule + _xtb. To store the xtb files of the molecule to sample
         subprocess.call(['mkdir', molecule_to_sample + '_xtb'])
 
-        io.write('./' + molecule_to_sample + '_xtb/' + molecule_to_sample + '_inp.xyz', molecule(molecule_to_sample))
+        io.write('./' + molecule_to_sample + '_xtb/' + molecule_to_sample + '_inp.xyz', molecule_csv(molecule_to_sample))
         start_GFN(gfn,'extreme', molecule_to_sample + '_inp.xyz', "output",molecule_to_sample + '_xtb',0)
         #process = subprocess.Popen(['xtb', molecule_to_sample + '_inp.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + molecule_to_sample + '_xtb', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -856,6 +856,11 @@ def start_GFN_freq(gfn, input_structure, output, folder, input_inp):
     print(stderr.decode(errors="replace"), file=output)   
     output.close()
 
+def molecule_csv(mol):
+    df = pd.read_csv('molecules_reactivity_network.csv', sep='\t')
+    atoms = io.read(df.loc[df['species'] == mol, 'pwd_xyz'].values[0]) 
+    return atoms
+
 if os.path.isfile('./grain/xtbopt.xyz') == True:
     sphere = io.read('./grain/xtbopt.xyz')
     grain = 'grain/xtbopt.xyz'
@@ -884,7 +889,7 @@ sphere_grid = io.read('./grid.xyz')
 len_sphere = len(sphere)
 
 len_sphere_grid = len(sphere_grid)
-len_molecule = len(molecule(molecule_to_sample))
+len_molecule = len(molecule_csv(molecule_to_sample))
 len_grid = int((len_sphere_grid - len_sphere)/len_molecule)
 
 if list_range is None:

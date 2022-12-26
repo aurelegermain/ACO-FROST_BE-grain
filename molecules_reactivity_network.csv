@@ -1,0 +1,543 @@
+species	Name	Formula	Mass	N_atoms	Charge	Detected	pwd_xyz	In_Network	Spin	Energy	ZPE
+H+	Hydrogencation	H1+	1.00784	1	1	False	./species/H+_0.xyz	True	0	0.0	0.0
+H	Hydrogenatom	H1	1.00784	1	0	False	./species/H_2Sigma.xyz	True	2	-0.499821	0.0
+H-	Hydrogeion	H1-	1.00784	1	-1	False	./species/H-_1.xyz	True	1	-0.52656215152	0.0
+He+	Heliumcation	He1+	4.002602	1	1	False	./species/He+_2.xyz	True	2	-1.9989211039	0.0
+He	Heliumatom	He1	4.002602	1	0	False	./species/He_1Sigma.xyz	True	1	-2.900598	0.0
+C+	Carboncation	C1+	12.0107	1	1	False	./species/C+_2.xyz	True	2	-37.370762258	0.0
+C	Carbonatom	C1	12.0107	1	0	False	./species/C_3Pi.xyz	True	3	-37.7817591	0.0
+C-	Carboion	C1-	12.0107	1	-1	False	./species/C-_4.xyz	True	4	-37.826518402	0.0
+N+	Nitrogencation	N1+	14.0067	1	1	False	./species/N+_3.xyz	True	3	-53.984885475	0.0
+N	Nitrogenatom	N1	14.0067	1	0	False	./species/N_4Sigma.xyz	True	4	-54.51678689999999	0.0
+O+	Oxygencation	O1+	15.999	1	1	False	./species/O+_4.xyz	True	4	-74.485604357	0.0
+O	Oxygenatom	O1	15.999	1	0	False	./species/O_3Sigma.xyz	True	3	-74.97885720000002	0.0
+O-	oxygeion	O1-	15.999	1	-1	False	./species/O-_2.xyz	True	2	-75.027905253	0.0
+F+	Fluorinecation	F1	18.9984	1	1	False	./species/F+_3.xyz	True	3	-98.993365802	0.0
+F	Fluorineatom	F1	18.9984	1	0	False	./species/F_2Pi.xyz	True	2	-99.627827	0.0
+Na+	Sodiumcation	Na1+	22.98977	1	1	False	./species/Na+_1.xyz	True	1	-161.676018791	0.0
+Na	Sodiumatom	Na1	22.98977	1	0	False	./species/Na_2S.xyz	True	2	-161.858038	0.0
+Mg+	Magnesiumcation	Mg1+	24.305	1	1	False	./species/Mg+_2.xyz	True	2	-199.3705439	0.0
+Mg	Magnesiumatom	Mg	24.305	1	0	False	./species/Mg_1Sigma.xyz	True	1	-199.647101	0.0
+Si+	Siliconcation	Si1+	28.0855	1	1	False	./species/Si+_2.xyz	True	2	-288.6355429	0.0
+Si	Siliconatom	Si1	28.0855	1	0	False	./species/Si_3Pi.xyz	True	3	-288.9337829	0.0
+P+	Phosphoruscation	P1+	30.97376	1	1	False	./species/P+_3.xyz	True	3	-340.4371951	0.0
+P	Phosphorusatom	P1	30.97376	1	0	False	./species/P_4Sigma.xyz	True	4	-340.8221436	0.0
+S+	Sulfurcation	S1+	32.065	1	1	False	./species/S+_4.xyz	True	4	-397.2830518	0.0
+S	Sulphuratom	S1	32.065	1	0	False	./species/S_3Pi.xyz	True	3	-397.6561008	0.0
+S-	Sulfuranion	S1-	32.065	1	-1	False	./species/S-_2.xyz	True	2	-397.72775529	0.0
+Cl+	Chlorinecation	Cl1+	35.453	1	1	False	./species/Cl+_3.xyz	True	3	-459.20662123	0.0
+Cl	Chlorineatom	Cl1	35.453	1	0	False	./species/Cl_2Pi.xyz	True	2	-459.6762037	0.0
+Fe+	Ironcation	Fe1+	55.845	1	1	False	pwd	True	0		
+Fe	Ironatom	Fe1	55.845	1	0	False	pwd	True	0		
+H2+	Hydrogencation	H2+	2.01568	2	1	False	./species/H2+_2.xyz	True	2	-0.60198461	0.00477
+H2	Molecularhydrogen	H2	2.01568	2	0	True	./species/H2_1Sigma.xyz	True	1	-1.1726257379	0.010175
+HeH+	Heliumhydridecation	H1He1+	5.010441999999999	2	1	False	./species/HeH+_1.xyz	True	1	-2.97531725	0.007568
+LiH		H1Li1	7.948	2	0	False	./species/LiH_1Sigma.xyz	False	1	-8.0231419502	0.003267
+CH+	Methylidynecation	H1C1+	13.01854	2	1	True	./species/CH+_1c.xyz	True	1	-38.02452394	0.006634
+CH	Methylidyne	H1C1	13.01854	2	0	True	./species/CH_2Pi.xyz	True	2	-38.412785056	0.00654
+NH+	Imidogencation	H1N1+	15.01454	2	1	False	./species/NH+_2.xyz	True	2	-54.65160645	0.006977
+NH	Imidogen	H1N1	15.01454	2	0	True	./species/NH_3Sigma.xyz	True	3	-55.14504448	0.007549
+OH+	Hydroxylcation	H1O1+	17.00684	2	1	True	./species/OH+_3.xyz	True	3	-75.17135197	0.007198
+OH	Hydroxylradical	H1O1	17.00684	2	0	True	./species/OH_2Pi.xyz	True	2	-75.64555112	0.0086
+OH-	Hydroxylanion	H1O1-	17.00684	2	-1	False	./species/OH-_1.xyz	True	1	-75.709423054	0.008409
+HF+	Hydrogenfluoride,positiveion	H1F1+	20.006243	2	1	False	./species/HF+_2.xyz	True	2	-99.76165361	0.006967
+HF	Hydrogenfluoride	H1F1	20.006243	2	0	True	./species/HF_1Sigma.xyz	True	1	-100.3495705	0.009517
+NaH	Sodiumhydride	H1Na1	23.99761	2	0	False	./species/NaH_1Sigma.xyz	True	1	-162.42830166	0.002737
+C2+	Carbondiatomiccation	C2+	24.0214	2	1	False	./species/C2+_4.xyz	True	4	-75.35536756	0.003156
+C2	Dicarbon	C2	24.0214	2	0	True	./species/C2_1Sigma.xyz	True	1	-75.786325123	0.004348
+MgH	Magnesiummonohydride	H1Mg1	25.31284	2	0	False	./species/MgH_2Sigma.xyz	True	2	-200.1981072	0.003384
+CN+	Cyanogencation	C1N1+	26.0174	2	1	False	./species/CN+_1c.xyz	True	1	-92.0677838	0.004814
+CN	Cyanoradical	C1N1	26.0174	2	0	True	./species/CN_2Sigma.xyz	True	2	-92.571492101	0.005108
+CN-	Cyanideanion	C1N1-	26.0174	2	-1	False	./species/CN-_1.xyz	True	1	-92.712494843	0.005003
+CO+	carbon?monoxidecation	C1O1+	28.0097	2	1	True	./species/CO+_2.xyz	True	2	-112.64920508	0.005448
+CO	Carbonmonoxide	C1O1	28.0097	2	0	True	./species/CO_1Sigma.xyz	True	1	-113.16175426	0.005183
+N2+	Nitrogencation	N2+	28.0134	2	1	False	./species/N2+_2.xyz	True	2	-108.81001895	0.005482
+N2	Molecularnitrogen	N2	28.0134	2	0	True	./species/N2_1Sigma.xyz	True	1	-109.38004505	0.005753
+SiH+	Silylidynecation	H1Si1+	29.09334	2	1	False	./species/SiH+_1.xyz	True	1	-289.25863724	0.005009
+SiH	Silylidyne	H1Si1	29.09334	2	0	True	./species/SiH_2Pi.xyz	True	2	-289.54815271	0.004766
+NO+	Nitrogenoxidecation	N1O1+	30.0057	2	1	True	./species/NO+_1.xyz	True	1	-129.38821756	0.005894
+NO	Nitricoxide	N1O1	30.0057	2	0	True	./species/NO_2Pi.xyz	True	2	-129.72566494	0.004726
+CF+	Fluoromethylidynecation	C1F1+	31.009103000000003	2	1	True	./species/CF+_1.xyz	True	1	-137.28172706	0.004203
+PH+	Phosphorusmonohydridecation	H1P1+	31.981601	2	1	False	./species/PH+_2.xyz	True	2	-341.06241687	0.00555
+PH	Phosphinidene	H1P1	31.981601	2	0	False	./species/PH_3Sigma.xyz	True	3	-341.4348198	0.005523
+O2+	Diatomicoxygencation	O2+	31.998	2	1	False	./species/O2+_2.xyz	True	2	-149.69741363	0.005026
+O2	Molecularoxygen	O2	31.998	2	0	True	./species/O2_3Sigma.xyz	True	3	-150.14022292	0.004006
+HS+	Sulfurmonohydridecation	H1S1+	33.07284	2	1	False	./species/HS+_3.xyz	True	3	-397.9141875	0.005969
+HS	Mercaptoradical	H1S1	33.07284	2	0	False	./species/HS_2Pi.xyz	True	2	-398.29133267	0.006171
+HCl+	Hydrogenchloride,positiveion	H1Cl1+	36.46084000000001	2	1	True	./species/HCl+_2.xyz	True	2	-459.87840028	0.006073
+HCl	Hydrogenchloride	H1Cl1	36.46084000000001	2	0	True	./species/HCl_1Sigma.xyz	True	1	-460.34324105	0.006807
+SiC+	Siliconmonocarbidecation	C1Si1+	40.0962	2	1	False	./species/SiC+_4.xyz	True	4	-326.54402764	0.001935
+SiC	Siliconmonocarbide	C1Si1	40.0962	2	0	True	./species/SiC_3Pi.xyz	True	3	-326.86836471	0.002277
+SiN+	Siliconmononitridecation	N1Si1+	42.0922	2	1	False	./species/SiN+_3.xyz	True	3	-343.23017776	0.001564
+SiN	Siliconnitride	N1Si1	42.0922	2	0	True	./species/SiN_2Sigma.xyz	True	2	-343.60822403	0.002765
+AlO		O1Al1	42.981	2	0	False	./species/AlO_2Sigma.xyz	False	2	-317.09473616	0.002236
+CP+	carbonmonophosphidecation	C1P1+	42.984461	2	1	False	./species/CP+_3.xyz	True	3	-378.39123403	0.002662
+CP	Carbonmonophosphide	C1P1	42.984461	2	0	True	./species/CP_2Sigma.xyz	True	2	-378.78964807	0.003013
+CS+	Carbonmonosulfide,positiveion	C1S1+	44.0757	2	1	False	./species/CS+_2.xyz	True	2	-435.28335601	0.00334
+CS	Carbonmonosulfide	C1S1	44.0757	2	0	True	./species/CS_1Sigma.xyz	True	1	-435.69821206	0.003082
+SiO+	Siliconmonoxidecation	O1Si1+	44.0845	2	1	False	./species/SiO+_2.xyz	True	2	-363.78044453	0.002558
+SiO	Siliconmonoxide	O1Si1+	44.0845	2	0	True	./species/SiO_1Sigma.xyz	True	1	-364.20382516	0.002969
+PN+	Phosphorusnitridecation	N1P1+	44.980461	2	1	False	./species/PN+_2.xyz	True	2	-395.11858415	0.003212
+PN	Phosphorusmononitride	N1P1	44.980461	2	0	True	./species/PN_1Sigma.xyz	True	1	-395.55257043	0.003349
+AlF		F1Al1	45.98	2	0	False	./species/AlF_1Sigma.xyz	False	1	-341.81102977	0.001824
+NS+	Nitrogensulfidecation	N1S1+	46.0717	2	1	True	./species/NS+_1.xyz	True	1	-452.01457523	0.003608
+NS	Mononitrogenmonosulfide	N1S1	46.0717	2	0	True	./species/NS_2Pi.xyz	True	2	-452.33769671	0.002988
+PO+	Phosphorusmonoxidecation	O1P1+	46.972761	2	1	False	./species/PO+_1.xyz	True	1	-415.70525994	0.003479
+PO	Phosphorusmonoxide	O1P1	46.972761	2	0	True	./species/PO_2Pi.xyz	True	2	-416.0120876	0.002995
+SiF+	Siliconmonofluoridecation	F1Si1+	47.083903	2	1	False	./species/SiF+_1.xyz	True	1	-388.5086111	0.002377
+CCl+	Carbonmonochloridecation	C1Cl1+	47.4637	2	1	False	./species/CCl+_1.xyz	True	1	-497.28281017	0.002769
+CCl	Chloromethylidyne	C1Cl1	47.4637	2	0	False	./species/CCl_2Pi.xyz	True	2	-497.60461158	0.001983
+SO+	Sulfurmonoxide,positiveion	O1S1+	48.06399999999999	2	1	True	./species/SO+_2.xyz	True	2	-472.44303451	0.003312
+SO	Sulfurmonoxide	O1S1	48.06399999999999	2	0	True	./species/SO_3Sigma.xyz	True	3	-472.82155532	0.00278
+ClO+	chlorinemonoxidecation	O1Cl1+	51.452	2	1	False	./species/ClO+_3.xyz	True	3	-534.35245371	0.002652
+ClO	Monochlorinemonoxide	O1Cl1	51.452	2	0	False	./species/OCl_2Pi.xyz	True	2	-534.74800524	0.002046
+SiS+	Siliconnmonosulfidecation	Si1S1+	60.1505	2	1	False	./species/SiS+_2.xyz	True	2	-686.42734003	0.001647
+SiS	Siliconmonosulfide	Si1S1	60.1505	2	0	True	./species/SiS_1Sigma.xyz	True	1	-686.81023709	0.001767
+AlCl		Al1Cl1	62.432	2	0	False	./species/AlCl_1Sigma.xyz	False	1	-701.79448271	0.001074
+S2+	Sulfurdimercation	S2+	64.13	2	1	False	./species/S2+_2.xyz	True	2	-795.11852094	0.002023
+S2	Molecularsulphur	S2	64.13	2	0	False	./species/S2_3Sigma.xyz	True	3	-795.46266604	0.001731
+H3+	Hydrogentrimercation	H3+	3.0235200000000004	3	1	True	./species/H3+_1.xyz	True	1	-1.34172481	0.022102
+CH2+	Methylenecation	H2C1+	14.02638	3	1	False	./species/CH2+_2.xyz	True	2	-38.69991128	0.016646
+CH2	Methylene	H2C1	14.02638	3	0	True	./species/CH2_3B1.xyz	True	3	-39.08004219	0.017426
+NH2+	Aminocation	H2N1+	16.022380000000002	3	1	False	./species/NH2+_3.xyz	True	3	-55.39059275	0.017221
+NH2	Aminoradical	H2N1	16.022380000000002	3	0	True	./species/NH2_2B1.xyz	True	2	-55.799823496	0.019177
+H2O+	Watercation	H2O1+	18.01468	3	1	True	./species/H2O+_2.xyz	True	2	-75.88022614	0.018765
+H2O	Water	H2O1	18.01468	3	0	True	./species/H2O_1A1.xyz	True	1	-76.342304733	0.021592
+H2F+	Dihydrogenfluoridecation	H2F1+	21.014083	3	1	False	./species/H2F+_1.xyz	True	1	-100.54331526	0.019243
+NaH2+	sodium;molecular hydrogen	H2Na1+	25.00545	3	1	False	./species/NaH2+_1.xyz	True	1	-162.85344639	0.011985
+C2H+	Ethynylcation	H1C2+	25.02924	3	1	False	./species/C2H+_3.xyz	True	3	-76.04826957	0.014686
+CCH	Ethynylradical	H1C2	25.02924	3	0	False	./species/C2H_2Sigma.xyz	True	2	-76.47178072	0.01525
+HCN+	Hydrogencyanidecation	H1C1N1+	27.025240000000004	3	1	False	./species/HCN+_2.xyz	True	2	-92.78348862	0.015077
+HNC+		H1C1N1+	27.025240000000004	3	1	False	./species/HNC+_2.xyz	True	2	-92.8179506	0.016417
+HCN	Hydrogencyanide	H1C1N1	27.025240000000004	3	0	True	./species/HCN_1Sigma.xyz	True	1	-93.28049591	0.016621
+HNC	Hydrogenisocyanide	H1C1N1	27.025240000000004	3	0	True	./species/HNC_1Sigma.xyz	True	1	-93.257123813	0.016043
+HCO+	Formylcation	H1C1O1+	29.017540000000004	3	1	True	./species/HCO+_1.xyz	True	1	-113.39680633	0.016696
+HOC+		H1C1O1+	29.017540000000004	3	1	True	./species/HOC+_1.xyz	True	1	-113.33425411	0.013599
+HCO	Formylradical	H1C1O1	29.017540000000004	3	0	True	./species/HCO_2Ap.xyz	True	2	-113.69220751	0.01328
+N2H+	Dinitrogenmonohydridecation	H1N2+	29.02124	3	1	True	./species/N2H+_1.xyz	True	1	-109.576506	0.016665
+SiH2+		H2Si1+	30.10118	3	1	False	./species/SiH2+_2.xyz	True	2	-289.83995026	0.012329
+SiH2	Silylene	H2Si1	30.10118	3	0	False	./species/SiH2_1A1.xyz	True	1	-290.17281258	0.011948
+HNO+	Nitrosyl?hydride?cation	H1N1O1+	31.01354000000001	3	1	False	./species/HNO+_2.xyz	True	2	-129.93620093	0.013757
+HNO	Nitrosylhydride	H1N1O1	31.01354000000001	3	0	True	./species/HNO_1Ap.xyz	True	1	-130.30890817	0.014439
+PH2+	Phosphinocation	H2P1+	32.989441	3	1	False	./species/PH2+_1.xyz	True	1	-341.70060731	0.013791
+PH2	Phosphinoradical	H2P1	32.989441	3	0	False	./species/PH2_2B1.xyz	True	2	-342.05986957	0.013695
+HO2+	Hydroperoxycation	H1O2+	33.00584	3	1	False	./species/HO2+_3.xyz	True	3	-150.31026288	0.01328
+O2H	Hydroperoxyradical	H1O2	33.00584	3	0	False	./species/HO2_2App.xyz	True	2	-150.72605251	0.01462
+H2S+	Hydroensulfidecation	H2S1+	34.08068	3	1	False	./species/H2S+_2.xyz	True	2	-398.55957168	0.014694
+H2S	Hydrogensulfide	H2S1	34.08068	3	0	True	./species/H2S_1A1.xyz	True	1	-398.94082174	0.015261
+C3+		C3+	36.0321	3	1	False	./species/C3+_2.xyz	True	2	-113.4121355	0.008509
+C3	Carbontrimer(linear)	C3	36.0321	3	0	True	./species/C3_1Sigma.xyz	True	1	-113.83866084	0.008492
+C3-	Tricarboion	C3-	36.0321	3	-1	False	./species/C3-_2.xyz	True	2	-113.91019889	0.008246
+H2Cl+	Dihydrogenmonochloridecation	H2Cl1+	37.46868	3	1	True	./species/H2Cl+_1.xyz	True	1	-460.56404183	0.015156
+CNC+		C2N1+	38.0281	3	1	False	./species/CNC+_1.xyz	True	1	-130.17784623	0.008236
+C2N+		C2N1+	38.0281	3	1	False	./species/C2N+_1.xyz	True	1	-130.1373702	0.00842
+CCN	cyanomethylidyne	C2N1	38.0281	3	0	False	./species/C2N_2Pi.xyz	True	2	-130.53184783	0.008666
+NaOH	Sodiumhydroxide	H1O1Na1	39.99661	3	0	False	./species/NaOH_1Sigma.xyz	True	1	-237.62708809	0.011468
+C2O+		C2O1+	40.0204	3	1	False	./species/C2O+_2.xyz	True	2	-150.62503359	0.007498
+CCO	Dicarbonmonoxide	C2O1	40.0204	3	0	False	./species/C2O_3Sigma.xyz	True	3	-151.02654582	0.009216
+CHSi+		H1C1Si1+	41.10404000000001	3	1	False	./species/CHSi+_3.xyz	True	3	-327.22146027	0.011722
+HCSi		H1C1Si1	41.10404000000001	3	0	False	./species/HCSi_2Pi.xyz	True	2	-327.5354494	0.014586
+NCO+		C1N1O1+	42.0164	3	1	False	./species/NCO+_3.xyz	True	3	-167.33454801	0.009222
+OCN	Isocyanatoradical	C1N1O1	42.0164	3	0	False	./species/NCO_2Pi.xyz	True	2	-167.76213755	0.01029
+HNSi+		H1N1Si1+	43.10004	3	1	False	./species/HNSi+_2.xyz	True	2	-343.88719554	0.014917
+HNSi		H1N1Si1	43.10004	3	0	False	./species/HNSi_1Sigma.xyz	True	1	-344.31424825	0.014063
+HCP+		H1C1P1+	43.992301	3	1	False	./species/HCP+_2.xyz	True	2	-379.09540016	0.013455
+HCP	Methinophosphide	H1C1P1	43.992301	3	0	True	./species/HCP_1Sigma.xyz	True	1	-379.48824369	0.014205
+CO2+	Carbondioxidecation	C1O2+	44.00870000000001	3	1	False	./species/CO2+_2.xyz	True	2	-187.83473259	0.006937
+CO2	Carbondioxide	C1O2	44.00870000000001	3	0	True	./species/CO2_1Sigma.xyz	True	1	-188.34005149	0.011966
+N2O	Nitrousoxide	N2O1	44.0124	3	0	True	./species/N2O_1Sigma.xyz	True	1	-184.4192577	0.011621
+HCS+	Thioformylcation	H1C1S1+	45.08354	3	1	True	./species/HCS+_1.xyz	True	1	-436.00885905	0.014624
+HCS	Thioformylradical	H1C1S1	45.08354	3	0	True	./species/HCS_2Ap.xyz	True	2	-436.28467942	0.011864
+HSiO+		H1O1Si1+	45.09234	3	1	False	./species/HSiO+_1.xyz	True	1	-364.4137609	0.01053
+HPN+		H1N1P1+	45.988301	3	1	False	./species/HPN+_1.xyz	True	1	-395.86345478	0.014849
+NO2+	Nitrogendioxidecation	N1O2+	46.0047	3	1	False	./species/NO2+_1.xyz	True	1	-204.46909837	0.012339
+NO2	Nitrogendioxide	N1O2	46.0047	3	0	False	./species/NO2_2A1.xyz	True	2	-204.81632876	0.009214
+HNS+		H1N1S1+	47.07954	3	1	False	./species/HNS+_2.xyz	True	2	-452.6170959	0.012309
+HPO+	HPOcation	H1O1P1+	47.980601	3	1	False	./species/HPO+_2.xyz	True	2	-416.23901566	0.008509
+HPO		H1O1P1	47.980601	3	0	False	./species/HPO_1Ap.xyz	True	1	-416.6205148	0.010222
+HSO+		H1O1S1+	49.07184	3	1	False	./species/HSO+_1.xyz	True	1	-473.05296062	0.011105
+H2CCl+		H2C1Cl1+	49.47938	4	1	False	./species/H2CCl+_1.xyz	True	1	-498.58825755	0.02539
+SiC2+		C2Si1+	52.1069	3	1	False	./species/SiC2+_2.xyz	True	2	-364.59536096	0.006968
+c-SiC2	Silicondicarbide	C2Si1	52.1069	3	0	True	./species/c-SiC2_1A1.xyz	True	1	-364.95342085	0.006196
+SiNC+		C1N1Si1+	54.1029	3	1	False	./species/SiNC+_1.xyz	True	1	-381.38251999	0.006959
+SiNC		C1N1Si1	54.1029	3	0	True	./species/SiNC_2Pi.xyz	True	2	-381.66917048	0.00714
+CCP+		C2P1+	54.995161	3	1	False	./species/CCP+_1.xyz	True	1	-416.45177714	0.00686
+CCP		C2P1	54.995161	3	0	True	./species/C2P_2Pi.xyz	True	2	-416.78509761	0.006886
+C2S+		C2S1+	56.0864	3	1	False	./species/C2S+_2.xyz	True	2	-473.25992224	0.006806
+CCS		C2S1	56.0864	3	0	False	./species/C2S_3Sigma.xyz	True	3	-473.63210463	0.007447
+OCS+		C1O1S1+	60.0747	3	1	False	./species/OCS+_2.xyz	True	2	-510.52210714	0.008747
+OCS	Carbonylsulfide	C1O1S1	60.0747	3	0	True	./species/OCS_1Sigma.xyz	True	1	-510.92975808	0.009404
+SiO2	Silicondioxide	O2Si1	60.0835	3	0	False	./species/SiO2_1Sigma.xyz	True	1	-439.33947512	0.00717
+HSiS+		H1Si1S+	61.15834	3	1	False	./species/HSiS+_1.xyz	True	1	-687.06071191	0.009213
+HSiS		H1Si1S1	61.153	3	0	False	./species/HSiS_2Ap.xyz	False	2	-687.36067776	0.007603
+SO2+	Sulfurdioxidecation	O2S1+	64.063	3	1	False	./species/SO2+_2.xyz	True	2	-547.5402911	0.006572
+SO2	Sulfurdioxide	O2S1	64.063	3	0	True	./species/SO2_1A1.xyz	True	1	-547.98994772	0.007314
+HS2+		H2S2+	65.13784	3	1	False	./species/HS2+_1.xyz	True	1	-795.71883144	0.009779
+HSS		H2S2	65.13784	3	0	False	./species/HS2_2App.xyz	True	2	-796.05806919	0.009521
+CH3+	Methylcation	H3C1+	15.03422	4	1	False	./species/CH3+_1.xyz	True	1	-39.40571114	0.031585
+CH3	Methylradical	H3C1	15.03422	4	0	True	./species/CH3_2B2.xyz	True	2	-39.763629758	0.029738
+NH3+	Amoniacation	H3N1+	17.03022	4	1	False	./species/NH3+_2.xyz	True	2	-56.10763365	0.032676
+NH3	Ammonia	H3N1	17.03022	4	0	True	./species/NH3_1Ap.xyz	True	1	-56.480551614	0.03456
+H3O+	Hydroniumcation	H3O1+	19.02252	4	1	True	./species/H3O+_1.xyz	True	1	-76.61548891	0.034481
+C2H2+	Acetylenecation	H2C2+	26.03708	4	1	False	./species/C2H2+_2.xyz	True	2	-76.77583378	0.026337
+C2H2	Acetylene	H2C2	26.03708	4	0	True	./species/C2H2_1Sigma.xyz	True	1	-77.191689996	0.027486
+HCNH+	Methanenitrilium	H2C1N1+	28.03308	4	1	True	./species/HCNH+_1.xyz	True	1	-93.56081703	0.028165
+H2NC+		H2C1N1+	28.03308	4	1	False	./species/H2NC+_1.xyz	True	1	-93.47967084	0.025306
+H2CN	Amidogen,methylene-	H2C1N1	28.03308	4	0	True	./species/H2CN_2B2.xyz	True	2	-93.829804395	0.025435
+H2CO+	Formaldehydecation	H2C1O1+	30.02538	4	1	False	./species/H2CO+_2.xyz	True	2	-113.94236089	0.024017
+H2CO	Formaldehyde	H2C1O1	30.02538	4	0	True	./species/H2CO_1A1.xyz	True	1	-114.3425452	0.027052
+SiH3+	Silylcation	H3Si1+	31.10902	4	1	False	./species/SiH3+_1.xyz	True	1	-290.49274551	0.022437
+SiH3	Silylradical	H3Si1	31.10902	4	0	False	./species/SiH3_2Ap.xyz	True	2	-290.78881659	0.021586
+H2NO+		H2N1O1+	32.02138	4	1	False	./species/H2NO+_1.xyz	True	1	-130.5876993	0.028796
+PH3+	Phosphinecation	H3P1+	33.997281	4	1	False	./species/PH3+_2.xyz	True	2	-342.33634594	0.023886
+HOOH	Hydrogenperoxide	H2O2	34.01368	4	0	False	./species/HOOH_1A1.xyz	True	1	-151.37362491	0.027185
+H3S+		H3S1+	35.08852	4	1	False	./species/H3S+_1.xyz	True	1	-399.21865238	0.026087
+C3H+	2-Propynylidenecation	H1C3+	37.03994	4	1	True	./species/C3H+_1.xyz	True	1	-114.13297611	0.019872
+c-C3H	2-Cyclopropyn-1-yl	H1C3	37.03994	4	0	True	./species/c-C3H_2Ap.xyz	True	2	-114.46626084	0.018703
+l-C3H	2-Propynylidene-	H1C3	37.03994	4	0	True	./species/l-C3H_2Pi.xyz	True	2	-114.46325449	0.018795
+HC2N+		H1C2N1+	39.03594	4	1	False	./species/HC2N+_2.xyz	True	2	-130.80758738	0.016802
+NaH2O+	Sodium;hydrate	H2O1Na1+	41.00445	4	1	False	./species/NaH2O+_1.xyz	True	1	-238.05360646	0.024041
+C2HO+	Protonateddicarbonmonoxide	H1C2O1+	41.02824	4	1	False	./species/C2HO+_1.xyz	True	1	-151.26467409999998	0.020054
+CH2Si+		H2C1Si1+	42.11188	4	1	False	./species/CH2Si+_2.xyz	True	2	-327.83528034	0.022513
+SiCH2		H2C1Si1	42.11188	4	0	False	./species/H2CSi_1A1.xyz	True	1	-328.20591181	0.021978
+HNCO+		H1C1N1O1+	43.02424	4	1	False	./species/HNCO+_2.xyz	True	2	-168.02121718	0.019608
+HNCO		H1C1N1O1	43.025	4	0	False	./species/HNCO_1Ap.xyz	False	1	-168.44533456	0.021523
+HOCN		H1C1N1O1	43.025	4	0	False	./species/HOCN_1Ap.xyz	False	1	-168.40685777	0.022016
+HCNO		H1C1N1O1	43.025	4	0	False	./species/HCNO_1Ap.xyz	False	1	-168.33400102	0.019965
+HONC		H1C1N1O1	43.025	4	0	False	./species/HONC_1Ap.xyz	False	1	-168.31281628	0.021004
+HSiNH+		H2N1Si1+	44.10788	4	1	False	./species/HSiNH+_1.xyz	True	1	-344.55279994	0.020781
+PCH2+		H2C1P1+	45.000141	4	1	False	./species/PCH2+_1.xyz	True	1	-379.75475703	0.021881
+HOCO+	HydrocarboxylcationORprotonatedcarbondioxide	H1C1O2+	45.01654	4	1	True	./species/HOCO+_1.xyz	True	1	-188.55475475	0.02179
+HN2O+	Imino(oxo)ammonium	H1N2O1+	45.02024	4	1	False	./species/HN2O+_1.xyz	True	1	-184.64050568	0.021111
+H2CS+	Thioformaldehydecation	H2C1S1+	46.09138	4	1	False	./species/H2CS+_2.xyz	True	2	-436.59873163	0.023866
+H2CS	Thioformaldehyde	H2C1S1	46.09138	4	0	True	./species/H2CS_1A1.xyz	True	1	-436.94141216	0.024969
+H2SiO+		H2O1Si1+	46.10018	4	1	False	./species/H2SiO+_2.xyz	True	2	-364.99270827	0.017755
+H2SiO		H2O1Si1	46.10018	4	0	False	./species/H2SiO_1A1.xyz	True	1	-365.37917321	0.018908
+PNH2+		H2N1P1+	46.996141	4	1	False	./species/PNH2+_2.xyz	True	2	-396.45705004	0.025731
+C4+	Carbontetramercation	C4+	48.0428	4	1	False	./species/C4+_2.xyz	True	2	-151.39824846	0.012141
+C4	(linerarform)	C4	48.0428	4	0	False	./species/C4_3Sigma.xyz	True	3	-151.79271829	0.013456
+C4-		C4-	48.0428	4	-1	False	./species/C4-_2.xyz	True	2	-151.93957894	0.014643
+H2PO+		H2O1P1+	48.988441	4	1	False	./species/H2PO+_1.xyz	True	1	-416.87799265	0.020527
+C3N+		C3N1+	50.0388	4	1	False	./species/C3N+_3.xyz	True	3	-168.13128784	0.011821
+C3N	Cyanoethynylradical	C3N1	50.0388	4	0	True	./species/C3N_2Sigma.xyz	True	2	-168.56497066	0.015961
+C3N-		C3N1-	50.0388	4	-1	False	./species/C3N-_1.xyz	True	1	-168.72269707	0.015873
+C3O+		C3O1+	52.0311	4	1	False	./species/C3O+_2.xyz	True	2	-188.69737056	0.016332
+C3O		C3O1	52.0311	4	0	True	./species/C3O_1Sigma.xyz	True	1	-189.09242282	0.015618
+C2N2+	Cyanogencation	C2N2+	52.0348	4	1	False	./species/C2N2+_2.xyz	True	2	-184.87457915	0.01504
+SiC2H+		H1C2Si1+	53.11474000000001	4	1	False	./species/SiC2H+_1.xyz	True	1	-365.31977089	0.018659
+HCCSi		H1C2Si1	53.11474000000001	4	0	False	./species/SiC2H_2Pi.xyz	True	2	-365.58606634	0.018237
+SiNCH+		H1C1N1Si1+	55.11074	4	1	False	./species/SiNCH+_2.xyz	True	2	-381.97526301	0.017644
+PC2H+		H1C2P1+	56.003001	4	1	False	./species/PC2H+_2.xyz	True	2	-417.13098864	0.018527
+HCCP		H1C2P1	56.003001	4	0	False	./species/HC2P_3Sigma.xyz	True	3	-417.46011799	0.01834
+HC2S+		H1C2S1+	57.09424	4	1	False	./species/HC2S+_3.xyz	True	3	-473.9720585	0.017915
+HCNS		H1C1N1S1	59.086	4	0	False	./species/HCNS_1Ap.xyz	False	1	-490.9788699	0.018966
+HSNC		H1C1N1S1	59.086	4	0	False	./species/HSNC_1Ap.xyz	False	1	-490.97550905	0.016425
+HSCN		H1C1N1S1	59.086	4	0	False	./species/HSCN_1Ap.xyz	False	1	-491.02323743	0.017106
+HOCS+		H1C1O1S1+	61.08254	4	1	False	./species/HOCS+_1.xyz	True	1	-511.16949064	0.019318
+HSiO2+		H1O2Si1+	61.09134	4	1	False	./species/HSiO2+_1.xyz	True	1	-439.61002675	0.016311
+H2SiS		H2Si1S1	62.161	4	0	False	./species/H2SiS_1A1.xyz	False	1	-687.99577981	0.017331
+l-SiC3+		C3Si1+	64.1176	4	1	False	./species/l-SiC3+_2.xyz	True	2	-402.51297091	0.010831
+l-SiC3		C3Si	64.1176	4	0	False	./species/SiC3_1Sigma.xyz	True	1	-402.89637641	0.011659
+c-SiC3		C3Si1	64.118	4	0	False	./species/c-SiC3_1A1.xyz	False	1	-402.91915289	0.011466
+HSO2+		H1O2S1+	65.07084	4	1	False	./species/HSO2+_1.xyz	True	1	-548.17024157	0.017124
+H2S2+		H2S2+	66.14568	4	1	False	./species/H2S2+_2.xyz	True	2	-796.34602469	0.01844
+HSSH	Dihydrogendisulfide	H2S2	66.14568	4	0	False	./species/HSSH_1A1.xyz	True	1	-796.68150834	0.018621
+C3P		C3P1	67.005861	4	0	False	./species/C3P_2Pi.xyz	True	2	-454.79536209	0.012258
+C3S+		C3S1+	68.0971	4	1	False	./species/C3S+_2.xyz	True	2	-511.2907522	0.013085
+C3S		C3S1	68.0971	4	0	True	./species/C3S_1Sigma.xyz	True	1	-511.68419563	0.013308
+CH4+	Methaneion	H4C1+	16.04206	5	1	False	./species/CH4+_2.xyz	True	2	-39.972415094	0.037507
+CH4	Methane	H4C1	16.04206	5	0	True	./species/CH4_1A1.xyz	True	1	-40.440908751	0.044985
+NH4+	Ammoniumcation	H4N1+	18.03806	5	1	True	./species/NH4+_1.xyz	True	1	-56.81801534	0.049508
+C2H3+	Vinylcation	H3C2+	27.04492	5	1	False	./species/C2H3+_1.xyz	True	1	-77.43843776	0.034654
+C2H3	Vinylradical	H3C2	27.04492	5	0	False	./species/C2H3_2Ap.xyz	True	2	-77.75736638	0.03694
+CH2NH	Methanimine	H3C1N1	29.04092	5	0	False	./species/CH2NH_1Ap.xyz	True	1	-94.480126972	0.040293
+H2COH+	CH2OH+(hydroxymethylcation)	H3C1O1+	31.03322	5	1	True	./species/H2COH+_1.xyz	True	1	-114.62596926	0.040974
+CH3O	methoxyradical	H3C1O1	31.03322	5	0	True	./species/CH3O_2A.xyz	True	2	-114.88502605	0.036177
+CH3O+	methoxyradical cation	H3C1O1	31.03322	5	1	False	./species/CH3O+_1.xyz	True	1	-114.57337174	0.029182
+SiH4+	Silanecation	H4Si1+	32.11686	5	1	False	./species/SiH4+_2.xyz	True	2	-291.03669971	0.028861
+SiH4	silane	H4Si1	32.11686	5	0	True	./species/SiH4_1A1.xyz	True	1	-291.44001752	0.031783
+l-C3H2+	Propadienylidenecation	H2C3+	38.04778	5	1	False	./species/l-C3H2+_2.xyz	True	2	-114.7370322	0.028963
+c-C3H2+		H2C3+	38.04778	5	1	False	./species/c-C3H2+_2.xyz	True	2	-114.80736293	0.033256
+c-C3H2	Cyclopropenylidene	H2C3	38.04778	5	0	True	./species/c-C3H2_1A1.xyz	True	1	-115.14197561	0.032706
+l-C3H2	Propadienylidene	H2C3	38.04778	5	0	True	./species/H2C3_1A1.xyz	True	1	-115.12034915	0.031244
+HC3H		H2C3	38.049	5	0	False	./species/HC3H_3B.xyz	False	3	-115.1189574	0.025592
+CH2CN+		H2C2N1+	40.04378	5	1	False	./species/CH2CN+_1.xyz	True	1	-131.49675029	0.031773
+H2CCN	Cyanomethylradical	H2C2N1	40.04378	5	0	True	./species/CH2CN_2B1.xyz	True	2	-131.87209647	0.031261
+H2CCO+	Ketenecation	H2C2O1+	42.03608	5	1	False	./species/H2CCO+_2.xyz	True	2	-152.01858392	0.031481
+H2CCO	Ketene	H2C2O1	42.03608	5	0	False	./species/H2CCO_1A1.xyz	True	1	-152.36861976	0.031951
+NH2CN	Cyanamide	H2C1N2	42.03978	5	0	False	./species/NH2CN_1Ap.xyz	True	1	-148.56181957	0.034527
+SiCH3+		H3C1Si1+	43.11972	5	1	False	./species/SiCH3+_1.xyz	True	1	-328.54752658	0.03362
+SiCH3		H3C1Si1	43.11972	5	0	False	./species/SiCH3_2App.xyz	True	2	-328.80612543	0.03428
+PCH3+		H3C1P1+	46.007981	5	1	False	./species/PCH3+_2.xyz	True	2	-380.35410515	0.033547
+CH2PH	Phosphethene	H3C1P1	46.007981	5	0	False	./species/CH2PH_1Ap.xyz	True	1	-380.70767312	0.033997
+HCOOH+	Formicacidcation	H2C1O2+	46.02438	5	1	False	./species/HCOOH+_2.xyz	True	2	-189.10314345	0.032753
+HCOOH	Formicacid	H2C1O2	46.02438	5	0	True	./species/HCOOH_1Ap.xyz	True	1	-189.51743378	0.034378
+H3CS+		H3C1S1+	47.09922	5	1	False	./species/H3CS+_3.xyz	True	3	-437.19649655	0.035571
+H3SiO+		H3O1Si1+	47.10802	5	1	False	./species/H3SiO+_1.xyz	True	1	-365.71055976	0.030398
+PNH3+		H3N1P1+	48.003981	5	1	False	./species/PNH3+_1.xyz	True	1	-397.02661532	0.031919
+C4H+		H1C4+	49.05064	5	1	False	./species/C4H+_3.xyz	True	3	-152.11340676	0.023609
+C4H		H1C4	49.05064	5	0	True	./species/C4H_2Sigma.xyz	True	2	-152.48378042	0.025295
+C4H-		H1C4-	49.05064	5	-1	False	./species/C4H-_1.xyz	True	1	-152.61496516	0.02617
+HC3N+	Cyanoacetylenecation	H1C3N1+	51.04664	5	1	False	./species/HC3N+_2.xyz	True	2	-168.86209246	0.026129
+HC3N	Propiolonitrile	H1C3N1	51.04664	5	0	True	./species/HC3N_1Sigma.xyz	True	1	-169.28795927	0.027655
+HCNCC		H1C3N1	51.04664	5	0	False	./species/HCNCC_1Sigma.xyz	True	1	-169.16182221	0.025767
+HNCCC		H1C3N1	51.04664	5	0	False	./species/HNCCC_1Ap.xyz	True	1	-169.20523873	0.024686
+HCCNC		H1C3N1	51.04664	5	0	False	./species/HCCNC_1Sigma.xyz	True	1	-169.24510112	0.026983
+HC3O+		H1C3O1+	53.03894	5	1	False	./species/HC3O+_1.xyz	True	1	-189.43080644	0.02792
+SiC2H2+		H2C2Si1+	54.122580000000006	5	1	False	./species/SiC2H2+_2.xyz	True	2	-365.90847664	0.027915
+c-HCCHSi	cyc-HC=CHSi	H2C2Si1	54.122580000000006	5	0	False	./species/c-SiC2H2_1A1.xyz	True	1	-366.23909381	0.029981
+HCOCN		H1C2N1O1	55.036	5	0	False	./species/HCOCN_1Ap.xyz	False	1	-206.43317904	0.027021
+PC2H2+		H2C2P1+	57.010841000000006	5	1	False	./species/PC2H2+_1.xyz	True	1	-417.78350071	0.029453
+C5+		C5+	60.0535	5	1	False	./species/C5+_2.xyz	True	2	-189.43778179	0.0207
+C5		C5	60.0535	5	0	True	./species/C5_1Sigma.xyz	True	1	-189.84534183	0.019241
+C5-		C5-	60.0535	5	-1	False	./species/C5-_2.xyz	True	2	-189.94803107	0.018378
+C4N+		C4N1+	62.0495	5	1	False	./species/C4N+_1.xyz	True	1	-206.21033066	0.019598
+C4N	Cyanopropynylidene	C4N1	62.0495	5	0	False	./species/C4N_2Pi.xyz	True	2	-206.56075644	0.019032
+C4O		C4O1	64.043	5	0	False	./species/C4O_3Sigma.xyz	False	3	-227.03805714	0.019959
+SiC3H+		H1C3Si1+	65.12544	5	1	False	./species/SiC3H+_3.xyz	True	3	-403.27974318	0.022101
+SiC3H		H1C3Si1	65.12544	5	0	False	./species/SiC3H_2Pi.xyz	True	2	-403.57854499	0.023017
+H3S2+		H3S2+	67.15352	5	1	False	./species/H3S2+_1.xyz	True	1	-796.96678513	0.028418
+PC3H+		H1C3P1+	68.013701	5	1	False	./species/PC3H+_2.xyz	True	2	-455.15071838	0.024077
+HC3S+		H1C3S1+	69.10494	5	1	False	./species/HC3S+_1.xyz	True	1	-512.04393809	0.025407
+SiC4+		C4Si1+	76.1283	5	1	False	./species/SiC4+_2.xyz	True	2	-440.58556901	0.017661
+SiC4		C4Si1	76.1283	5	0	False	./species/SiC4_1Sigma.xyz	True	1	-440.9538281	0.017514
+C4P+		C4P1+	79.016561	5	1	False	./species/C4P+_1.xyz	True	1	-492.49295597	0.017456
+C4P		C4P1	79.016561	5	0	False	./species/C4P_2Pi.xyz	True	2	-492.80231547	0.016967
+C4S+		C4S1+	80.1078	5	1	False	./species/C4S+_2.xyz	True	2	-549.3100557999999	0.01731
+C4S		C4S1	80.1078	5	0	False	./species/C4S_3Sigma.xyz	True	3	-549.64627369	0.017781
+CH5+		H5C1+	17.0499	6	1	False	./species/CH5+_1.xyz	True	1	-40.652685019	0.051499
+C2H4+	Ethyleneion	H4C2+	28.05276	6	1	False	./species/C2H4+_2.xyz	True	2	-78.05844259999999	0.049198
+C2H4	ethylene	H4C2	28.05276	6	0	True	./species/C2H4_1A1.xyz	True	1	-78.443462031	0.051376
+CH2NH2+	Methyleneaminecation	H4C1N1+	30.04876	6	1	False	./species/CH2NH2+_1.xyz	True	1	-94.82267054	0.054465
+CH3OH+	METHANOLCATION	H4C1O1+	32.041059999999995	6	1	False	./species/CH3OH+_2.xyz	True	2	-115.16078791	0.047143
+CH3OH	methanol	H4C1O1	32.041059999999995	6	0	True	./species/CH3OH_1Ap.xyz	True	1	-115.56226763	0.051773
+SiH5+		H5Si1+	33.1247	6	1	False	./species/SiH5+_1.xyz	True	1	-291.69090247	0.03941
+l-C3H3+	Propargylcation	H3C3+	39.05562000000001	6	1	False	./species/l-C3H3+_1.xyz	True	1	-115.4693471	0.043012
+c-C3H3+	Cyclopropenylcation	H3C3+	39.05562000000001	6	1	False	./species/c-C3H3+_1.xyz	True	1	-115.5144869	0.04557
+CH2CCH	Propargylradical	H3C3	39.05562000000001	6	0	False	./species/CH2C2H_2B1.xyz	True	2	-115.78566699	0.041527
+CH3CC		H3C3	39.057	6	0	False	./species/CH3CC_2Ap.xyz	False	2	-115.71515026	0.041326
+CH3CN+	ACETONITRILECATION	H3C2N1+	41.05162	6	1	False	./species/CH3CN+_2.xyz	True	2	-132.08690401	0.040639
+CH3CN	Acetonitrile	H3C2N1	41.05162	6	0	True	./species/CH3CN_1Ap.xyz	True	1	-132.53628846	0.04571
+CH2CNH		H3C2N1	41.053	6	0	False	./species/CH2CNH_1Ap.xyz	False	1	-132.49121235	0.04414
+CH3CO+	Acetylcation	H3C2O1+	43.04392	6	1	False	./species/CH3CO+_1.xyz	True	1	-152.69394543	0.04494
+NH2CNH+		H3C1N2+	43.04762	6	1	False	./species/NH2CNH+_1.xyz	True	1	-148.87579529	0.044285
+SiCH4+		H4C1Si+	44.12756	6	1	False	./species/SiCH4+_2.xyz	True	2	-329.12321628	0.041936
+NH2CHO	formamide	H3C1N1O1	45.03992	6	0	True	./species/HCONH2_1Ap.xyz	True	1	-169.65676284	0.045848
+PCH4+		H4C1P1+	47.015821	6	1	False	./species/PCH4+_3.xyz	True	3	-380.92791146	0.044546
+CH3O2+	Protonatedformicacid	H3C1O2+	47.03222	6	1	False	./species/CH3O2+_1.xyz	True	1	-189.77698566	0.043352
+C4H2+	Diacetlyenecation	H2C4+	50.05848	6	1	False	./species/C4H2+_2.xyz	True	2	-152.83279207	0.037282
+C4H2	Diacetylene	H2C4	50.05848	6	0	False	./species/C4H2_1Sigma.xyz	True	1	-153.20413186	0.03827
+H2C4		H2C4	50.06	6	0	False	./species/H2C4_1A1.xyz	False	1	-153.13290563	0.03593
+HC2NCH+		H2C3N1+	52.05448000000001	6	1	False	./species/HC2NCH+_1.xyz	True	1	-169.55240409	0.038601
+HC3NH+		H2C3N1+	52.05448000000001	6	1	True	./species/HC3NH+_1.xyz	True	1	-169.58244571	0.038763
+H2C3O+		H2C3O1+	54.04678000000001	6	1	False	./species/H2C3O+_2.xyz	True	2	-190.01805814	0.036374
+HCCCHO	prop-2-ynal	H2C3O1	54.04678000000001	6	0	False	./species/HCOC2H_1Ap.xyz	True	1	-190.35054244	0.037912
+c-C3H2O	cyclopropenone	H2C3O1	54.04678000000001	6	0	False	./species/c-C3H2O_1A1.xyz	True	1	-190.33979244	0.038449
+H2CCCO		H2C3O1	54.04678000000001	6	0	False	./species/H2CCCO_1Ap.xyz	True	1	-190.35161927	0.037768
+SiC2H3+		H3C2Si1+	55.13042	6	1	False	./species/SiC2H3+_1.xyz	True	1	-366.56534225	0.040955
+H2CSiCH		H3C2Si1	55.13042	6	0	False	./species/H2SiC2H_2Ap.xyz	True	2	-366.81414367	0.03443
+PC2H3+		H3C2P1+	58.01868100000001	6	1	False	./species/PC2H3+_2.xyz	True	2	-418.37829441	0.039638
+C5H+		H1C5+	61.06134	6	1	False	./species/C5H+_1.xyz	True	1	-190.17897305	0.030859
+C5H		H1C5	61.06134	6	0	True	./species/C5H_2Pi.xyz	True	2	-190.48735277	0.029591
+C5H-		H1C5-	61.06134	6	-1	False	./species/C5H-_3.xyz	True	3	-190.57402587	0.027671
+HC4N+		H1C4N1+	63.05734	6	1	False	./species/HC4N+_2.xyz	True	2	-206.88020356	0.029922
+HC4N		H1C4N1	63.05734	6	0	False	./species/HC4N_3Sigma.xyz	True	3	-207.22769668	0.028531
+HC4O+		H1C4O1+	65.04964	6	1	False	./species/HC4O+_3.xyz	True	3	-227.38798384	0.030152
+SiC3H2+		H2C3Si1+	66.13328	6	1	False	./species/SiC3H2+_2.xyz	True	2	-403.93807225	0.033382
+C6+		C6+	72.0642	6	1	False	./species/C6+_2.xyz	True	2	-227.35815145	0.022845
+C6		C6	72.0642	6	0	False	./species/C6_3Sigma.xyz	True	3	-227.81535095	0.023782
+C6-		C6-	72.0642	6	-1	False	./species/C6-_2.xyz	True	2	-227.96737807	0.024757
+C5N+		C5N1+	74.0602	6	1	False	./species/C5N+_3.xyz	True	3	-244.19595536	0.023099
+C5N		C5N1	74.0602	6	0	True	./species/C5N_2Sigma.xyz	True	2	-244.57874632	0.026044
+C4N2		C4N2	76.058	6	0	False	./species/C4N2_1Sigma.xyz	False	1	-261.37924187	0.027282
+C5O		C5O1	76.0525	6	0	False	./species/C5O_1A.xyz	True	1	-265.08780118	0.025823
+SiC4H+		H1C4Si1+	77.13614	6	1	False	./species/SiC4H+_1.xyz	True	1	-441.34567131	0.029338
+SiC4H		H1C4Si1+	77.13614	6	0	False	./species/SiC4H_2Pi.xyz	True	2	-441.60403559	0.028605
+PC4H+		H1C4P1+	80.024401	6	1	False	./species/PC4H+_2.xyz	True	2	-493.870396459	0.028702
+HC4S+		H1C4S1+	81.11564	6	1	False	./species/HC4S+_3.xyz	True	3	-550.01366467	0.028421
+C2H5+		H5C2+	29.0606	7	1	False	./species/C2H5+_1.xyz	True	1	-78.7114713	0.061201
+C2H5	ethylradical	H5C2	29.0606	7	0	False	./species/C2H5_2Ap.xyz	True	2	-79.007916081	0.0596
+CH3NH2+	Methylaminecation	H5C1N1+	31.056600000000003	7	1	False	./species/CH3NH2+_2.xyz	True	2	-95.3731601	0.06161
+CH3NH2	Methylamine	H5C1N1	31.056600000000003	7	0	True	./species/CH3NH2_1Ap.xyz	True	1	-95.70608372	0.064497
+CH3OH2+	Protonatedmethylalcohol	H5C1O1+	33.0489	7	1	False	./species/CH3OH2+_1.xyz	True	1	-115.86068636	0.064643
+C3H4+		H4C3+	40.06346	7	1	False	./species/C3H4+_2.xyz	True	2	-116.08439455	0.052229
+CH3CCH	Propyne	H4C3	40.06346	7	0	False	./species/CH3C2H_1Ap.xyz	True	1	-116.44251331	0.056237
+CH2CCH2	1,2-propadiene	H4C3	40.06346	7	0	False	./species/CH2CCH2_1A1.xyz	True	1	-116.44070988	0.05556
+CH3CNH+		H4C2N1+	42.05946	7	1	False	./species/CH3CNH+_1.xyz	True	1	-132.84237513	0.056456
+C2H4O+	Acetaldehydecation	H4C2O1+	44.05176	7	1	False	./species/C2H4O+_2.xyz	True	2	-153.22221659	0.053194
+CH3CHO	acetaldehyde	H4C2O1	44.05176	7	0	True	./species/CH3CHO_1Ap.xyz	True	1	-153.59811188	0.055988
+NH2CH2O+	Formamide,protonated	H4C1N1O1+	46.04776	7	1	False	./species/NH2CH2O+_1.xyz	True	1	-169.98660837	0.060144
+C4H3+		H3C4+	51.06632000000001	7	1	False	./species/C4H3+_1.xyz	True	1	-153.48806422	0.046832
+C4H3	1-buten-3-ynyl	H3C4	51.06632000000001	7	0	False	./species/C4H3_2A.xyz	True	2	-153.78058661	0.04586
+CH3C3		H3C4	51.068	7	0	False	./species/CH3C3_2Ap.xyz	False	2	-153.72005845	0.046239
+C3H3N+	ACETONITRILECATION	H3C3N1+	53.06231999999999	7	1	False	./species/C3H3N+_2.xyz	True	2	-170.14330577	0.049129
+CH2CHCN	2-Propenenitrile	H3C3N1	53.06231999999999	7	0	True	./species/CH2CHCN_1Ap.xyz	True	1	-170.54347336	0.051317
+c-C3H2OH+		H3C3O1+	55.05461999999999	7	1	False	./species/c-C3H2OH+_1.xyz	True	1	-190.66865353	0.051803
+HCCCHOH+		H3C3O1+	55.05461999999999	7	1	False	./species/HCCCHOH+_1.xyz	True	1	-190.65129808	0.051131
+C2H3CO+		H3C3O1+	55.05461999999999	7	1	False	./species/C2H3CO+_1.xyz	True	1	-190.60443411	0.048716
+PC2H4+		H4C2P1+	59.026521	7	1	False	./species/PC2H4+_1.xyz	True	1	-419.02023572	0.050532
+C5H2+		H2C5+	62.06918	7	1	False	./species/C5H2+_2.xyz	True	2	-190.78574593	0.039668
+C5H2		H2C5	62.06918	7	0	False	./species/H2C5_1A1.xyz	True	1	-191.13166911	0.041608
+H2C4N+		H2C4N1+	64.06518	7	1	False	./species/H2C4N+_1.xyz	True	1	-207.54843063	0.042373
+SiC2CH3		H3C3Si1	67.14112	7	0	False	./species/CH3C2Si_2Ap.xyz	True	2	-404.8394438	0.046463
+C6H+		H1C6+	73.07204	7	1	False	./species/C6H+_3.xyz	True	3	-228.15974483	0.034465
+C6H	1,3,5-hexatrinylradical	H1C6	73.07204	7	0	True	./species/C6H_2Pi.xyz	True	2	-228.50298271	0.035645
+C6H-		H1C6-	73.07204	7	-1	False	./species/C6H-_1.xyz	True	1	-228.64237362	0.036381
+HC5N+		H1C5N1+	75.06804	7	1	False	./species/HC5N+_2.xyz	True	2	-244.91490257	0.036701
+HC5N	2,4-Pentadiynenitrile	H1C5N1	75.06804	7	0	True	./species/HC5N_1Sigma.xyz	True	1	-245.30133893	0.038073
+HC5O+		H1C5O1+	77.06034	7	1	False	./species/HC5O+_1.xyz	True	1	-265.46015452	0.03832
+PC4H2+		H1C4P1+	81.032241	7	1	False	./species/PC4H2+_1.xyz	True	1	-493.81647475	0.039769
+C7+		C7+	84.0749	7	1	False	./species/C7+_2.xyz	True	2	-265.47464431	0.026608
+C7		C7	84.0749	7	0	False	./species/C7_1Sigma.xyz	True	1	-265.85114409	0.029558
+C7-		C7-	84.0749	7	-1	False	./species/C7-_2.xyz	True	2	-265.97236228	0.028187
+C6N+		C6N1+	86.0709	7	1	False	./species/C6N+_1.xyz	True	1	-282.25670651	0.030029
+C6N	5-cyano-2,4-pentadiynylidyne	C6N1	86.0709	7	0	False	./species/C6N_2A.xyz	True	2	-282.58253806	0.028889
+C2H6+	Ethaneion	H6C2+	30.06844	8	1	False	./species/C2H6+_2.xyz	True	2	-79.25290868	0.068149
+C2H6	ethane	H6C2	30.06844	8	0	False	./species/C2H6_1A1g.xyz	True	1	-79.679889766	0.07511
+CH3NH3+	Methylamine,protonated	H6C1N1+	32.064440000000005	8	1	False	./species/CH3NH3+_1.xyz	True	1	-96.0619477	0.079597
+C3H5+	Allylcation	H5C3+	41.0713	8	1	False	./species/C3H5+_1.xyz	True	1	-116.74526564	0.068707
+C3H5	propenyl/allylradical	H5C3	41.0713	8	0	False	./species/C3H5_2A2.xyz	True	2	-117.04033556	0.066365
+CH3CHOH+		H5C2O1+	45.0596	8	1	False	./species/CH3CHOH+_1.xyz	True	1	-153.90313493	0.068866
+CH3OCH2	methoxymethylradical	H5C2O1	45.0596	8	0	False	./species/CH3OCH2_2A2.xyz	True	2	-154.1479665	0.066542
+CH3CHOH		H5C2O1	45.0596	8	0	False	./species/CH3CHOH_2A.xyz	True	2	-154.14796619	0.066544
+CH2CH2OH		H5C2O1	45.0596	8	0	False	./species/CH2CH2OH_2A.xyz	True	2	-154.13493917	0.065034
+C4H4+	1-Buten-3-yne,POSITIVEION	H4C4+	52.07416	8	1	False	./species/C4H4+_2.xyz	True	2	-154.10314119	0.060658
+CH2CHC2H		H4C4	52.07416	8	0	False	./species/CH2CHC2H_1Ap.xyz	True	1	-154.45323118	0.061834
+C3H3NH+	Propenaldimine-1-yl,positiveion	H4C3N1+	54.07016	8	1	False	./species/C3H3NH+_1.xyz	True	1	-170.85124576	0.062272
+CH3NHCN		H4C2N2	56.03745	8	0	False	./species/CH3NHCN_1A.xyz	True	1	-187.79344529	0.063491
+COOCH4+	Aceticacidcation	H4C2O2+	60.05076	8	1	False	./species/COOCH4+_2.xyz	True	2	-228.37868808	0.06068
+HCOOCH3	Methylformate	H4C2O2	60.05076	8	0	False	./species/CH3OCHO_1Ap.xyz	True	1	-228.74488474	0.062945
+HCOCH2OH		H4C2O2	60.05076	8	0	False	./species/HCOCH2OH_1Ap.xyz	True	1	-228.7280464	0.062056
+CH3COOH	acetic acid	H4C2O2	60.05076	8	0	True	./species/CH3COOH_1Ap.xyz	True	1	-228.7712839	0.062485
+C5H3+		H3C5+	63.07702	8	1	False	./species/C5H3+_1.xyz	True	1	-191.50504224	0.0534
+C5H3	penta‐2,4‐diyn‐1‐yl	H3C5	63.07702	8	0	False	./species/C5H3_2A.xyz	True	2	-191.80360739	0.051955
+H3C4N+	Cyanopropynecation	H3C4N1+	65.07302	8	1	False	./species/H3C4N+_2.xyz	True	2	-208.492004688	0.051921
+CH3C3N	Cyanopropyne	H3C4N1	65.07302	8	0	True	./species/CH3C3N_1Ap.xyz	True	1	-208.54280077	0.056124
+CH2CCHCN		H3C4N1	65.075	8	0	False	./species/CH2CCHCN_1Ap.xyz	False	1	-208.53734692	0.055415
+HCCCH2CN		H3C4N1	65.075	8	0	False	./species/HCCCH2CN_1Ap.xyz	False	1	-208.5312373	0.055985
+C6H2+	1,3,5-Hexatriynecation	H2C6+	74.07988	8	1	False	./species/C6H2+_2.xyz	True	2	-228.87173829	0.047658
+C6H2	1,3,5-Hexatriyne	H2C6	74.07988	8	0	True	./species/C6H2_1Sigma.xyz	True	1	-229.21864314	0.048631
+H2C6		H2C6	74.082	8	0	False	./species/H2C6_1A1.xyz	False	1	-229.1403514	0.046324
+H2C5N+		H2C5N1+	76.07588	8	1	False	./species/H2C5N+_1.xyz	True	1	-245.60473698	0.048945
+C7H+		H1C7+	85.08274	8	1	False	./species/C7H+_1.xyz	True	1	-266.21094496	0.041293
+C7H	2,4,6-Heptatriynylidyne	H1C7	85.08274	8	0	True	./species/C7H_2Pi.xyz	True	2	-266.50596811	0.039809
+C7H-		H1C7-	85.08274	8	-1	False	./species/C7H-_3.xyz	True	3	-266.60813751	0.038281
+HC6N+		H1C6N1+	87.07874	8	1	False	./species/HC6N+_2.xyz	True	2	-282.9277939	0.040371
+HC6N		H1C6N1	87.07874	8	0	False	./species/HC6N_3Sigma.xyz	True	3	-283.25262812	0.038861
+C8+		C8+	96.0856	8	1	False	./species/C8+_2.xyz	True	2	-303.41021042	0.033202
+C8		C8	96.0856	8	0	False	./species/C8_3Sigma.xyz	True	3	-303.82826888	0.033852
+C8-		C8-	96.0856	8	-1	False	./species/C8-_2.xyz	True	2	-303.98809874	0.034818
+C7N+		C7N1+	98.0816	8	1	False	./species/C7N+_3.xyz	True	3	-320.24102524	0.03355
+C7N	6-Cyano-1,3,5-hexatruynyl	C7N1	98.0816	8	0	False	./species/C7N_2Pi.xyz	True	2	-320.59686283	0.034965
+C7O		C7O1	100.0739	8	0	False	./species/C7O_1A.xyz	True	1	-341.09066242	0.035987
+C6N2		C6N2	100.08	8	0	False	./species/C6N2_1Sigma.xyz	False	1	-337.39479596	0.037596
+SiC6H		H1C6Si1	101.15754	8	0	False	./species/SiC6H_2Pi.xyz	True	2	-517.62039942	0.038722
+C2H7+	ethane;hydron	H7C2+	31.07628	9	1	False	pwd	True	0		
+CH3CHCH2	Propene	H6C3	42.07914	9	0	False	./species/CH3CHCH2_1Ap.xyz	True	1	-117.69002965	0.08016
+CH3OCH3+		H6C2O1+	46.06744000000001	9	1	False	./species/CH3OCH3+_2.xyz	True	2	-154.42274739	0.076172
+C2H5OH+	ETHANOLCATION	H6C2O1+	46.06744000000001	9	1	False	./species/C2H5OH+_2.xyz	True	2	-154.42777138	0.077986
+CH3OCH3	Dimethylether	H6C2O1	46.06744000000001	9	0	False	./species/CH3OCH3_1A1.xyz	True	1	-154.79018526	0.080518
+CH3CH2OH	ethanol	H6C2O1	46.06744000000001	9	0	True	./species/CH3CH2OH_1Ap.xyz	True	1	-154.80942603	0.080718
+C4H5+		H5C4+	53.082	9	1	False	./species/C4H5+_1.xyz	True	1	-154.75813077	0.071904
+C4H5	1,3-butadienylradical	H5C4	53.082	9	0	False	./species/C4H5_2A.xyz	True	2	-155.01778911	0.071916
+CH3CONH2		H5C2N1O1	59.068	9	0	False	./species/CH3CONH2_1Ap.xyz	False	1	-208.90850492	0.073795
+H5C2O2+	PROTONATEDmethylformate	H5C2O2+	61.0586	9	1	False	./species/H5C2O2+_1.xyz	True	1	-229.05317425	0.075464
+HCOCH2OH2+		H5C2O2+	61.0586	9	1	False	./species/HCOCH2OH2+_1.xyz	True	1	-229.03676388	0.074422
+C5H4+		H4C5+	64.08485999999999	9	1	False	./species/C5H4+_2.xyz	True	2	-192.12156589	0.062302
+CH3C4H	1,3-Pentadiyne	H4C5	64.08485999999999	9	0	True	./species/CH3C4H_1Ap.xyz	True	1	-192.45639667	0.06674
+H3C4NH+		H4C4N1+	66.08086	9	1	False	./species/H3C4NH+_1.xyz	True	1	-208.85248574	0.066558
+SiC3H5		H5C3Si1	69.1568	9	0	False	./species/SiC3H5_2Ap.xyz	True	2	-406.06187669	0.068683
+C6H3+		H3C6+	75.08771999999998	9	1	False	./species/C6H3+_1.xyz	True	1	-229.51986108	0.057558
+C5H3N+		H3C5N1+	77.08372	9	1	False	./species/C5H3N+_2.xyz	True	2	-246.16136167	0.056245
+C7H2+		H2C7+	86.09058	9	1	False	./species/C7H2+_2.xyz	True	2	-266.81739794	0.049781
+C7H2		H2C7	86.09058	9	0	False	./species/H2C7_1A1.xyz	True	1	-267.14127158	0.051656
+H2C6N+		H2C6N1+	88.08658	9	1	False	./species/H2C6N+_1.xyz	True	1	-283.58539773	0.052647
+C8H+		H1C8+	97.09344	9	1	False	./species/C8H+_3.xyz	True	3	-304.19381361	0.044735
+C8H		H1C8	97.09344	9	0	True	./species/C8H_2Pi.xyz	True	2	-304.51983087	0.045824
+C8H-		H1C8-	97.09344	9	-1	False	./species/C8H-_1.xyz	True	1	-304.6653453	0.046749
+HC7N+		H1C7N1+	99.08944	9	1	False	./species/HC7N+_2.xyz	True	2	-320.95393016	0.047017
+HC7N		H1C7N1	99.08944	9	0	True	./species/HC7N_1Sigma.xyz	True	1	-321.31587848	0.048327
+HC7O+		H1C7O1+	101.08174	9	1	False	./species/HC7O+_1.xyz	True	1	-341.48405983	0.04852
+C9+		C9+	108.0963	9	1	False	./species/C9+_2.xyz	True	2	-341.50785494	0.036575
+C9		C9	108.0963	9	0	False	./species/C9_1Sigma.xyz	True	1	-341.85832163	0.03968
+C9-		C9-	108.0963	9	-1	False	./species/C9-_2.xyz	True	2	-341.9918629	0.037939
+C8N+		C8N1+	110.0923	9	1	False	./species/C8N+_1.xyz	True	1	-358.29118618	0.040595
+C8N	7-cyano-2,4,6-heptatriynylidyne	C8N1	110.0923	9	0	False	./species/C8N_2A.xyz	True	2	-358.60098286	0.03919
+C3H7	n-propylradical	H7C3	43.08698	10	0	False	./species/C3H7_2A.xyz	True	2	-118.24999388	0.088616
+CH3OCH4+	Dimethylether,protonated	H7C2O1+	47.07528	10	1	False	./species/CH3OCH4+_1.xyz	True	1	-155.10369479	0.09377
+C2H5OH2+	Ethanolprotonated	H7C2O1+	47.07528	10	1	False	./species/C2H5OH2+_1.xyz	True	1	-155.11618145	0.093031
+CH2CHCHCH2	1,3-Butadiene	H6C4	54.08984	10	0	False	./species/C4H6_1A1.xyz	True	1	-155.70544719	0.085799
+CH3CH2C2H		H6C4	54.092	10	0	False	./species/CH3CH2C2H_1Ap.xyz	False	1	-155.68453724	0.085411
+CH3CHCCH2		H6C4	54.092	10	0	False	./species/CH3CHCCH2_1Ap.xyz	False	1	-155.68574753	0.084582
+C2H6CO+	Acetone,positiveion	H6C3O1+	58.07814000000001	10	1	False	./species/C2H6CO+_2.xyz	True	2	-192.49539121	0.081888
+CH3COCH3	acetone	H6C3O1	58.07814000000001	10	0	False	./species/C2H6CO_1A1.xyz	True	1	-192.85152376	0.084177
+C5H5+		H5C5+	65.0927	10	1	False	./species/C5H5+_1.xyz	True	1	-192.77357109	0.078744
+C5H5	pent-1-en-4-yn-3-ylradical	H5C5	65.0927	10	0	False	./species/C5H5_2A.xyz	True	2	-193.05718576	0.07656
+C6H4+		H4C6+	76.09555999999998	10	1	False	./species/C6H4+_2.xyz	True	2	-230.13300685	0.070565
+C6H4	(E)-hex-3-en-1,5-diyne	H4C6	76.09555999999998	10	0	False	./species/C6H4_1Ag.xyz	True	1	-230.46348927	0.071539
+C5H4N+		H4C5N1+	78.09156	10	1	False	./species/C5H4N+_1.xyz	True	1	-246.82238179	0.070545
+C7H3+		H3C7+	87.09841999999998	10	1	False	./species/C7H3+_1.xyz	True	1	-267.53222473	0.06356
+CH3C5N		H3C6N1	89.09442	10	0	True	./species/CH3C5N_1Ap.xyz	True	1	-284.55564392	0.06642
+C8H2+		H2C8+	98.10128	10	1	False	./species/C8H2+_2.xyz	True	2	-304.90256993	0.057955
+C8H2	1,3,5,7-Octatetrayne	H2C8	98.10128	10	0	False	./species/C8H2_1Sigma.xyz	True	1	-305.23384945	0.058907
+H2C8		H2C8	98.104	10	0	False	./species/H2C8_1A1.xyz	False	1	-305.14853979	0.056454
+C7H2N+		H2C7N1+	100.09728	10	1	False	./species/C7H2N+_1.xyz	True	1	-321.62453943	0.059018
+C9H+		H1C9+	109.10414	10	1	False	./species/C9H+_1.xyz	True	1	-342.23694881	0.051554
+C9H		H1C9	109.10414	10	0	False	./species/C9H_2Pi.xyz	True	2	-342.52289313	0.049879
+C9H-		H1C9-	109.10414	10	-1	False	./species/C9H-_3.xyz	True	3	-342.63561381	0.048382
+HC8N+		H1C8N1+	111.10014	10	1	False	./species/HC8N+_2.xyz	True	2	-358.96407704	0.050556
+HC8N		H1C8N1	111.10014	10	0	False	./species/HC8N_3Sigma.xyz	True	3	-359.27364497	0.048852
+C10+		C10+	120.107	10	1	False	./species/C10+_2.xyz	True	2	-379.44896991	0.04339
+C10		C10	120.107	10	0	False	./species/C10_3Sigma.xyz	True	3	-379.84025325	0.04385
+C10-		C10-	120.107	10	-1	False	./species/C10-_2.xyz	True	2	-380.00576368	0.044801
+C9N+		C9N1+	122.103	10	1	False	./species/C9N+_3.xyz	True	3	-396.27608358	0.043723
+C9N		C9N1	122.103	10	0	False	./species/C9N_2Pi.xyz	True	2	-396.6141395	0.045115
+C9O	3-Methoxy-4-methylheptane	C9O1	124.0953	10	0	False	./species/C9O_1A.xyz	True	1	-417.09626144	0.046075
+C8N2		C8N2	124.102	10	0	False	./species/C8N2_1Sigma.xyz	False	1	-413.4105402	0.047867
+SiC8H		H1C8Si1	125.17894	10	0	False	./species/SiC8H_2Pi.xyz	True	2	-593.63634445	0.048809
+C3H8	propane	H8C3	44.09482	11	0	False	./species/C3H8_1A1.xyz	True	1	-118.92235861	0.103993
+C4H7+		H7C4+	55.09768	11	1	False	./species/C4H7+_1.xyz	True	1	-156.01473674	0.096378
+C3H6OH+	Acetone,protonated	H7C3O1+	59.085980000000006	11	1	False	./species/C3H6OH+_1.xyz	True	1	-193.1724688	0.09683
+C5H6	3-penten-1-yne	H6C5	66.10054000000001	11	0	False	./species/C5H6_1Ap.xyz	True	1	-193.70063362	0.090117
+c-C6H5+		H5C6+	77.1034	11	1	False	./species/c-C6H5+_1.xyz	True	1	-230.77835547	0.085587
+C7H4+		H4C7+	88.10625999999998	11	1	False	./species/C7H4+_2.xyz	True	2	-268.14757071	0.07192
+CH3C6H	hepta-1,3,5-triyne	H4C7	88.10625999999998	11	0	True	./species/CH3C6H_1Ap.xyz	True	1	-268.47144911	0.077014
+H3C6NH+		H4C6N1+	90.10226	11	1	False	./species/H3C6NH+_1.xyz	True	1	-284.86947494	0.076773
+C8H3+		H3C8+	99.10912	11	1	False	./species/C8H3+_1.xyz	True	1	-305.54494127	0.067908
+H3C7N+		H3C7N1+	101.10512	11	1	False	./species/H3C7N+_2.xyz	True	2	-322.743062345	0.066642
+C9H2+		H2C9+	110.11198	11	1	False	./species/C9H2+_2.xyz	True	2	-342.84210573	0.059661
+C9H2		H2C9	110.11198	11	0	False	./species/H2C9_1A1.xyz	True	1	-343.15106474	0.061613
+H2C8N+		H2C8N1+	112.10798	11	1	False	./species/H2C8N+_1.xyz	True	1	-359.61472432	0.062831
+C10H+		H1C10+	121.11484	11	1	False	./species/C10H+_3.xyz	True	3	-380.22163884	0.054801
+C10H		H1C10	121.11484	11	0	False	./species/C10H_2Pi.xyz	True	2	-380.53590507	0.055919
+C10H-		H1C10-	121.11484	11	-1	False	./species/C10H-_1.xyz	True	1	-380.68593774	0.056948
+C9HN+		H1C9N1+	123.11084	11	1	False	./species/C9HN+_2.xyz	True	2	-396.98552039	0.057223
+HC9N	2,4,6,8-Nonatetraynenitrile	H1C9N1	123.11084	11	0	True	./species/HC9N_1Sigma.xyz	True	1	-397.33099538	0.05856
+HC9O+		H1C9O1+	125.10314	11	1	False	./species/HC9O+_1.xyz	True	1	-417.50504305	0.05866
+C11+		C11+	132.1177	11	1	False	./species/C11+_2.xyz	True	2	-417.53449285	0.046125
+C11		C11	132.1177	11	0	False	./species/C11_1Sigma.xyz	True	1	-417.86606999	0.049733
+C10N+		C10N1+	134.1137	11	1	False	./species/C10N+_1.xyz	True	1	-434.3193366	0.050853
+C10N	9-cyano-2,4,6,8-nonatetraynylidyne	C10N1	134.1137	11	0	False	./species/C10N_2Ap.xyz	True	2	-434.61786901	0.049129
+c-C6H6	Benzene	H6C6	78.11124000000002	12	0	False	./species/c-C6H6_1A1.xyz	True	1	-231.81989837	0.101291
+C7H5+		H5C7+	89.1141	12	1	False	./species/C7H5+_1.xyz	True	1	-268.78873433	0.088098
+C8H4+		H4C8+	100.11696	12	1	False	./species/C8H4+_2.xyz	True	2	-306.15860364	0.077159
+C9H3+		H3C9+	111.11982	12	1	False	./species/C9H3+_1.xyz	True	1	-343.55526061	0.073648
+CH3C7N		H3C8N1	113.11582	12	0	False	./species/CH3C7N_1Ap.xyz	True	1	-360.57007103	0.076686
+C10H2+		H2C10+	122.12268	12	1	False	./species/C10H2+_2.xyz	True	2	-380.92870751	0.068153
+C10H2	1,3,5,7,9-Decapentayne	H2C10	122.12268	12	0	False	./species/C10H2_1S.xyz	True	1	-381.2492332	0.069158
+C9H2N+		H2C9N1+	124.11868	12	1	False	./species/C9H2N+_1.xyz	True	1	-397.62818701	0.067163
+HC10N+		H1C10N1+	135.12153999999998	12	1	False	./species/HC10N+_2.xyz	True	2	-434.99383154	0.060587
+HC10N		H1C10N1	135.125	12	0	False	./species/HC10N_3Sigma.xyz	False	3	-435.29276814	0.058693
+C10N2		C10N2	148.124	12	0	False	./species/C10N2_1Sigma.xyz	False	1	-489.42620589	0.058093
+C5H8	1,3-pentadiene	H8C5	68.11622	13	0	False	./species/C5H8_1Ap.xyz	True	1	-194.95212054	0.114021
+C6H7+		H7C6+	79.11908000000003	13	1	False	./species/C6H7+_1.xyz	True	1	-232.03285421	0.106726
+C7H6	1,5-heptadiyne-3-ene	H6C7	90.12194	13	0	False	./species/C7H6_1A.xyz	True	1	-269.71453857	0.100106
+C8H5+		H5C8+	101.1248	13	1	False	./species/C8H5+_1.xyz	True	1	-306.79831636	0.091614
+C9H4+		H4C9+	112.12766	13	1	False	./species/C9H4+_2.xyz	True	2	-344.78489495900004	0.084293
+C8H4N+		H4C8N1+	114.12366000000002	13	1	False	./species/C8H4N+_1.xyz	True	1	-360.88645326	0.086932
+C10H3+		H3C10+	123.13052	13	1	False	./species/C10H3+_1.xyz	True	1	-381.56658332	0.078106
+C9H3N+		H3C9N1+	125.12652	13	1	False	pwd	True	0		
+H2C10N+		H2C10N1+	136.12938	13	1	False	./species/H2C10N+_1.xyz	True	1	-435.63965607	0.072953
+C9H5+		H5C9+	113.1355	14	1	False	./species/C9H5+_1.xyz	True	1	-344.80982945	0.096085
+C7H8	hepta-1,3-diyne,1,5-heptadiyne	H8C7	92.13762	15	0	False	./species/C7H8_1A.xyz	True	1	-270.94182649	0.124525
+C6H10	1,3-hexadiene	H10C6	82.1426	16	0	False	./species/C6H10_1A.xyz	True	1	-234.19457515	0.142919

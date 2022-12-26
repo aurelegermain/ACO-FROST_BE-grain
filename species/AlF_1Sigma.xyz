@@ -1,0 +1,13 @@
+2
+AlF_1Sigma (1-SG / C*V)
+Al     0.000000     0.000000     0.683269
+ F     0.000000     0.000000    -0.986943
+
+-------- ENERGY AND PROPERTIES --------
+
+ Rotational constants:       0.0000000       16.2501954       16.2501954 GHz
+
+ ECCSD(T)/aug-cc-pVTZ = -341.81102977 Eh
+
+ MU_X      MU_Y      MU_Z       MU
+ 0.000    0.000    1.429    1.429

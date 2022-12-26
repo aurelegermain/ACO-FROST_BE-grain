@@ -1,0 +1,13 @@
+2
+SiN+_3 (3-X / C*V)
+Si     0.000000     0.000000     0.592262
+ N     0.000000     0.000000    -1.184525
+
+-------- ENERGY AND PROPERTIES --------
+
+ Rotational constants:       0.0000000       17.1540040       17.1540040 GHz
+
+ EROCCSD(T)/aug-cc-pVTZ = -343.23017776 Eh
+
+ MU_X      MU_Y      MU_Z       MU
+ 0.000    0.000    2.860    2.860
