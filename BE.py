@@ -14,7 +14,7 @@ from copy import deepcopy
 import subprocess
 import numpy as np
 from scipy.spatial import ConvexHull
-from ase import io, Atoms, neighborlist
+from ase import io, Atoms, neighborlist, geometry
 from ase.units import kJ,Hartree,mol
 from ase.build import molecule
 import argparse
@@ -26,7 +26,8 @@ rng = np.random.default_rng()
 
 parser = argparse.ArgumentParser()
 parser.add_argument("grain", metavar="G", help="Grain model to sample in .xyz", type=str)
-parser.add_argument("-level", "--level", help="Grid level needed", type=int, default="0")
+parser.add_argument("-l", "--level", help="Grid level needed", type=int, default="0")
+parser.add_argument("-sl", "--section_level", help="Section Grid level needed", type=int, default="0")
 parser.add_argument("-mol", "--molecule", help="molecule to sample", type=str, default="0", required=True)
 parser.add_argument("-g", "--gfn", help="GFN-xTB method to use (0,1,2, or ff)", default="2")
 parser.add_argument("-r", "--radius", help="Radius for unfixing molecules", type=float, default="5")
@@ -36,37 +37,44 @@ parser.add_argument("-range", "--range", nargs='+', help="To contains the comput
 parser.add_argument("-rotation", "--rotation", help="If you want more than one random rotation for each adsorption", type=int, default=1)
 parser.add_argument("-gc", "--grid_continue", nargs='+', help="If you want to increase the size of the grid. First number is the first level of grid used, second number is the level desired", type=int, default=[0,0])
 parser.add_argument("-add_rotation", "--add_rotation", nargs='+', help="If you want to add a different rotation for your adsorption. First number how many rotation you have (default equal 1) and second number is how many rotation you want (2 if you want to add 1 rotation, 3 if you want to add 2, etc..)", type=int, default=[1,1])
+parser.add_argument("-d", "--distance", help="distance from grain when projected", type=float, default="2.5")
 
 #Conflicting options part
 
 #conflict between -onlyfreq and -nofreq
 group_freq = parser.add_mutually_exclusive_group()
-group_freq.add_argument('-nofreq', action='store_true', help="No frequencies computation")
-only_freq_arg = group_freq.add_argument('-onlyfreq', action='store_true', help="Only the frequencies computation. Needs the fixed or unfixed files")
+group_freq.add_argument('-nfreq', '--no_freq', action='store_true', help="No frequencies computation")
+only_freq_arg = group_freq.add_argument('-ofreq', '--only_freq', action='store_true', help="Only the frequencies computation. Needs the fixed or unfixed files")
 
 #conflict between -onlyfixed and -nofixed
 group_fixed = parser.add_mutually_exclusive_group()
-group_fixed.add_argument('-nofixed', action='store_true', help="The grain is totally unfixed")
-only_fixed_arg = group_fixed.add_argument('-onlyfixed', action='store_true', help="Only the opt of the fixed grain")
+group_fixed.add_argument('-nf', '--no_fixed', action='store_true', help="The grain is totally unfixed")
+only_fixed_arg = group_fixed.add_argument('-of', '--only_fixed', action='store_true', help="Only the opt of the fixed grain")
 
 #conflict between -onlyfixed -onlyunfixed and -onlyfreq
 group_only = parser.add_mutually_exclusive_group()
-group_only.add_argument('-onlyunfixed', action='store_true', help="Only the opt of the unfixed grain. Needs the fixed files")
+group_only.add_argument('-ouf', '--only_unfixed', action='store_true', help="Only the opt of the unfixed grain. Needs the fixed files")
 group_only._group_actions.append(only_freq_arg)
 group_only._group_actions.append(only_fixed_arg)
+
+parser.add_argument('-nu', '--no_unfixed', action='store_true', help="The unfixed part is not computed.")
+
 
 args = parser.parse_args()
 
 level = args.level
+section_level = args.section_level
 grain = args.grain
 molecule_to_sample = args.molecule.upper() #The molecule indicated by the user is automatically put in upper case 
+distance_grain = args.distance
 gfn = str(args.gfn)
 radius_unfixed = args.radius
-nofreq =args.nofreq
-nofixed = args.nofixed
-onlyfixed = args.onlyfixed
-onlyunfixed = args.onlyunfixed
-onlyfreq = args.onlyfreq
+nofreq =args.no_freq
+nofixed = args.no_fixed
+nounfixed = args.no_unfixed
+onlyfixed = args.only_fixed
+onlyunfixed = args.only_unfixed
+onlyfreq = args.only_freq
 othermethod = args.othermethod
 restart = args.restart
 list_args_grid_continue = args.grid_continue
@@ -169,10 +177,84 @@ def grid_building(sphere, level, continue_grid):
 
         iter_level +=1
     
+     #if we bisect or trisect or ... the grid level we chosed 
+    if section_level > 0:
+        #the first part is the same as for building the grid levels
+        #build the indice of each triangles
+        hull = ConvexHull(grid)
+        indices = hull.simplices
+        #sort indices inside each row and then we sort each row dependng on the value of the first column
+        indices = np.sort(indices)
+        indices =indices[indices[:, 0].argsort()]
+    
+        #build the list of each point to be added to construct the next level grid
+        list_point_to_add= []
+        for l in range(len(indices)):
+            list_point_to_add = np.append(list_point_to_add,[i for i in combinations(indices[l,:], 2)])
+        list_point_to_add = np.reshape(list_point_to_add, (-1,2))
+        list_point_to_add = np.unique(list_point_to_add, axis=0).astype(int)
+
+        #we make a matrice for each point. 0 if two points are not neighbours and 1 if they are
+        matrice_connect = np.zeros([len(grid), len(grid)])
+        for connect in list_point_to_add:
+            matrice_connect[connect[0], connect[1]] = 1
+            matrice_connect[connect[1], connect[0]] = 1
+
+        #we go points by points 
+        for i, line in enumerate(matrice_connect):
+
+            #list of points connected to the one we selected 
+            list_points = [i for i in range(len(line)) if line[i]==1]
+
+            #this array will contain every section points between the selected point and the ones in the list
+            grid_direct = np.zeros([section_level*len(list_points),3])
+            for j, point in enumerate(list_points):
+                if point < i: continue
+
+                #we create the sections points for every point directly connected to the selected point 
+                for lvl in range(section_level):
+                    m = lvl + 1 #m equal 1 if bisection, 2 then 1 if trisection, 3 then 2 then 1 if quadrisection, etc...
+                    n = (section_level + 1) - m 
+                    
+                    grid_direct[j*section_level + lvl,:] = (n * grid[i,:] + m * grid[point,:])/(n + m)
+                    grid_direct[j*section_level + lvl,:] = grid_direct[j*section_level + lvl,:]/np.sqrt(np.sum(np.square(grid_direct[j*section_level + lvl,:]))) 
+            #we append these points to the grid
+            grid = np.append(grid, grid_direct[np.any(grid_direct != [0.,0.,0.], axis=1)], axis=0)
+            
+            #in this part we will create the 
+            for j, point in enumerate(list_points):
+                if point < i: continue
+
+                list_connect_point = [k for k in range(len(line)) if (line[k]==1 and matrice_connect[point][k] == 1)]
+
+                for k, connect_point in enumerate(list_connect_point):
+                    if connect_point < point: continue
+                    grid_connect = np.zeros([sum([i + 1 for i in range(section_level - 1)]),3])
+
+                    iter = 0
+                    for lvl in range(section_level-1):
+                        for nbr_lvl in range(lvl + 1):
+                            m = nbr_lvl + 1
+                            n = (lvl + 2) - m 
+
+                            grid_connect[iter,:] = (n * grid_direct[j*section_level + lvl + 1,:] + m * grid_direct[section_level*list_points.index(connect_point) + lvl + 1,:])/(n + m)
+                            grid_connect[iter,:] = grid_connect[iter,:]/np.sqrt(np.sum(np.square(grid_connect[iter,:]))) 
+                            iter +=1
+
+                    grid = np.append(grid, grid_connect, axis=0)
+
+    matrice_distances = geometry.get_distances(sphere.get_positions(), sphere.get_center_of_mass())
+    list_distances = [values for list in matrice_distances[1] for values in list if values != 0]
+
+    grid_list = Atoms(str(len(grid)) + 'N')
+    grid_list.set_positions(grid*(np.amax(list_distances) + 2.5))
+
+    del grid
+    
     if nbr_rotation !=1:
-        grid_deepcopy = deepcopy(grid)
+        grid_deepcopy = deepcopy(grid_list)
         for i in range(nbr_rotation - 1):
-            grid = np.append(grid, grid_deepcopy, axis=0)
+            grid_list = np.append(grid_list, grid_deepcopy, axis=0)
 
     #this is simply to project on a sphere with a radius taken from the grain model to sample
     distance_max = np.amax(distances_3d(sphere)) + 1
@@ -210,7 +292,8 @@ def grid_building(sphere, level, continue_grid):
 
     #replace each grid point by the molecule studied and apply a random orientation to it
     #The grid radius is also changed and set to the "distance_max" variable
-    for i in range(len(grid) - continue_grid):
+    for i in range(len(grid_list) - continue_grid):
+
         atoms_to_add2 = deepcopy(atoms_to_add)
         #rotate the molecule randomly
         angle_mol = rng.random(3)*360
@@ -219,7 +302,7 @@ def grid_building(sphere, level, continue_grid):
         atoms_to_add2.rotate(angle_mol[2], "z")
 
         for j in range(len(atoms_to_add)):
-            atoms_to_add2[j].position = atoms_to_add2[j].position + grid[i + continue_grid]*distance_max
+            atoms_to_add2[j].position = atoms_to_add2[j].position + grid_list[i + continue_grid].position*distance_max
         if i == 0:
             #atoms is the ase atoms object containing all the posistions of the studied molecule 
             atoms = atoms_to_add2
@@ -234,14 +317,14 @@ def grid_building(sphere, level, continue_grid):
         io.write('./grid_first.xyz', grid_first_old + atoms)
 
     position_mol = np.zeros(3)
-    for i in range(len(grid) - continue_grid):
+    for i in range(len(grid_list) - continue_grid):
         #Maybe a too complicated method
         #Compute the minimum distance between the molecule 
         iter_steps = 0
         i_continue = int(i + continue_grid)
-        radius = np.sqrt(np.square(grid[i_continue,0]*distance_max) + np.square(grid[i_continue,1]*distance_max) + np.square(grid[i_continue,2]*distance_max))
-        theta = np.arccos(grid[i_continue,2]*distance_max/radius)
-        phi = np.arctan2(grid[i_continue,1]*distance_max,grid[i_continue,0]*distance_max)
+        radius = np.sqrt(np.square(grid_list[i_continue].position[0]*distance_max) + np.square(grid_list[i_continue].position[1]*distance_max) + np.square(grid_list[i_continue].position[2]*distance_max))
+        theta = np.arccos(grid_list[i_continue].position[2]*distance_max/radius)
+        phi = np.arctan2(grid_list[i_continue].position[1]*distance_max,grid_list[i_continue].position[0]*distance_max)
         molecule_to_move = barycentre(atoms[i*len(atoms_to_add):(i+1)*len(atoms_to_add)])
         while np.amin(distances_ab(atoms[i*len(atoms_to_add):(i+1)*len(atoms_to_add)], sphere)) > distance * coeff_max or np.amin(distances_ab(atoms[i*len(atoms_to_add):(i+1)*len(atoms_to_add)], sphere)) < distance / coeff_min:
             
@@ -902,7 +985,7 @@ if othermethod is True and onlyfreq is False:
 if nofixed is False and onlyunfixed is False and onlyfreq is False and othermethod is False:
     fixed(restart, continue_grid, list_range)
     restart = 0
-if onlyfixed is False and onlyfreq is False and othermethod is False:
+if onlyfixed is False and onlyfreq is False and othermethod is False and nounfixed is False:
     unfixed(restart, continue_grid, list_range)
     restart = 0
 
