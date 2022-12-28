@@ -101,17 +101,19 @@ def grid_continue(starting_grid, ending_grid):
     If the user wants to increase the number of BEs by increasing the size of the grid. 
     Takes the level of the old grid and the level of the desired one and return the number of BE to ignore so that as to not compute the old grid again
     """
+    print(starting_grid, ending_grid)
     if (ending_grid - starting_grid) == 0 and (add_rotation[1] - add_rotation[0]) == 0:
         continue_grid = 0
     else:
         list_size_grid = np.atleast_1d(np.zeros(ending_grid + 1))
-
         for i in range(len(list_size_grid)):
             if i == 0:
                 list_size_grid[i] = 12
             else:
                 list_size_grid[i] = list_size_grid[i - 1] + 2**(2*(i + 1) + 1) - 2**(2*(i - 1) + 1) #this is the equation that gives the number of grid points for the level n (depends on N(n-1))
         continue_grid = int(list_size_grid[starting_grid]*add_rotation[0])
+    
+    print(continue_grid)
 
 
     return continue_grid
@@ -290,62 +292,104 @@ def grid_building(sphere, level, continue_grid):
     #this is the molecule that will be added for each rid point.
     atoms_to_add = io.read('./' + molecule_to_sample + '_xtb/' + molecule_to_sample + '.xyz') 
 
-    #replace each grid point by the molecule studied and apply a random orientation to it
-    #The grid radius is also changed and set to the "distance_max" variable
     for i in range(len(grid_list) - continue_grid):
+        #if i!=0: continue
+        i_continue = int(i + continue_grid)
+        Atoms_to_add = deepcopy(atoms_to_add)
 
-        atoms_to_add2 = deepcopy(atoms_to_add)
         #rotate the molecule randomly
         angle_mol = rng.random(3)*360
-        atoms_to_add2.rotate(angle_mol[0], "x")
-        atoms_to_add2.rotate(angle_mol[1], "y")
-        atoms_to_add2.rotate(angle_mol[2], "z")
+        Atoms_to_add.rotate(angle_mol[0], "x")
+        Atoms_to_add.rotate(angle_mol[1], "y")
+        Atoms_to_add.rotate(angle_mol[2], "z")
 
-        for j in range(len(atoms_to_add)):
-            atoms_to_add2[j].position = atoms_to_add2[j].position + grid_list[i + continue_grid].position*distance_max
-        if i == 0:
-            #atoms is the ase atoms object containing all the posistions of the studied molecule 
-            atoms = atoms_to_add2
+
+        Atoms_to_add.set_positions(Atoms_to_add.get_positions() + grid_list[i_continue].position)
+
+        if 'atoms_far' in locals():
+            atoms_far += deepcopy(Atoms_to_add)
         else:
-            atoms = atoms + atoms_to_add2
-    if continue_grid == 0:
-        #write the file containing all the positions with the grain structure used
-        io.write('./grid_first.xyz', sphere + atoms)
-    else:
-        #if the computation continues from a previous one we update the file
-        grid_first_old = io.read('./grid_first.xyz') 
-        io.write('./grid_first.xyz', grid_first_old + atoms)
+            atoms_far = deepcopy(Atoms_to_add)
 
-    position_mol = np.zeros(3)
-    for i in range(len(grid_list) - continue_grid):
-        #Maybe a too complicated method
-        #Compute the minimum distance between the molecule 
-        iter_steps = 0
-        i_continue = int(i + continue_grid)
-        radius = np.sqrt(np.square(grid_list[i_continue].position[0]*distance_max) + np.square(grid_list[i_continue].position[1]*distance_max) + np.square(grid_list[i_continue].position[2]*distance_max))
-        theta = np.arccos(grid_list[i_continue].position[2]*distance_max/radius)
-        phi = np.arctan2(grid_list[i_continue].position[1]*distance_max,grid_list[i_continue].position[0]*distance_max)
-        molecule_to_move = barycentre(atoms[i*len(atoms_to_add):(i+1)*len(atoms_to_add)])
-        while np.amin(distances_ab(atoms[i*len(atoms_to_add):(i+1)*len(atoms_to_add)], sphere)) > distance * coeff_max or np.amin(distances_ab(atoms[i*len(atoms_to_add):(i+1)*len(atoms_to_add)], sphere)) < distance / coeff_min:
-            
-            if np.amin(distances_ab(atoms[i*len(atoms_to_add):(i+1)*len(atoms_to_add)], sphere)) > distance * coeff_max:
-                iter_steps += - 1
+        good_place = False
+        merde = False
+        start_again = 0
+        while good_place!=True:
+            All_distances_from_grain = geometry.get_distances(Atoms_to_add.get_positions(), sphere.get_positions())[1]
+            id_mol, id_nearest = np.divmod(np.argmin(All_distances_from_grain),len(sphere))
+
+            mol_position = Atoms_to_add[id_mol].position
+            nearest_position = sphere[id_nearest].position
+
+            delta_a = np.sum(mol_position**2)
+            delta_b = -2*np.sum(mol_position*nearest_position)
+            delta_c = np.sum(nearest_position**2) - distance_grain**2
+            delta = delta_b**2 -4*delta_a*delta_c
+
+            if delta > 0:
+                t_0 = (-delta_b + np.sqrt(delta))/(2*delta_a)
+                t_1 = (-delta_b - np.sqrt(delta))/(2*delta_a)
+
+                mol_position_0 = np.array([t_0*mol_position[0], t_0*mol_position[1], t_0*mol_position[2]])
+                mol_position_1 = np.array([t_1*mol_position[0], t_1*mol_position[1], t_1*mol_position[2]])
+
+                d_mol_0 = np.sqrt(np.sum((mol_position_0)**2))
+                d_mol_1 = np.sqrt(np.sum((mol_position_1)**2))
+
+                if d_mol_0 > d_mol_1: 
+                    diff_mol_position = mol_position_0 - mol_position
+                else:
+                    diff_mol_position = mol_position_1 - mol_position
             else:
-                iter_steps += 1
-            #change the distance between the molecule and the grain by increments of 0.1A 
-            position_mol[0] = (radius + iter_steps*steps)*np.sin(theta)*np.cos(phi)
-            position_mol[1] = (radius + iter_steps*steps)*np.sin(theta)*np.sin(phi)
-            position_mol[2] = (radius + iter_steps*steps)*np.cos(theta)
+                delta_c_2 = [np.sum(nearest_position**2) - (i/10)**2 for i in range(20,40,1)]
+                delta_2 = [delta_b**2 -4*delta_a*delta_c_i for delta_c_i in delta_c_2]
 
-            for j in range(len(atoms_to_add)):
-                atoms[i*len(atoms_to_add)+j].position = molecule_to_move[j].position + position_mol
+                if start_again > 5:
+                    t_2_0 = (-delta_b + np.sqrt(np.abs(delta)))/(2*delta_a)
+                    t_2_1 = (-delta_b - np.sqrt(np.abs(delta)))/(2*delta_a)
+
+                    mol_position_2_0 = np.array([t_2_0*mol_position[0], t_0*mol_position[1], t_0*mol_position[2]])
+                    mol_position_2_1 = np.array([t_2_1*mol_position[0], t_1*mol_position[1], t_1*mol_position[2]])
+
+                    d_mol_2_0 = np.sqrt(np.sum((mol_position_2_0)**2))
+                    d_mol_2_1 = np.sqrt(np.sum((mol_position_2_1)**2))
+
+                    if d_mol_2_0 < d_mol_2_1: 
+                        diff_mol_position = mol_position_2_0 - mol_position
+                    else:
+                        diff_mol_position = mol_position_2_1 - mol_position
+                else:
+                    t_2 = (-delta_b)/(2*delta_a)
+                    mol_position_2 = np.array([t_2*mol_position[0], t_2*mol_position[1], t_2*mol_position[2]])
+                    diff_mol_position = mol_position_2 - mol_position
+
+            Atoms_to_add_0 = deepcopy(Atoms_to_add)
+
+            Atoms_to_add.set_positions(Atoms_to_add.get_positions() + diff_mol_position)
+
+            list_min_distances_from_grain = [np.argmin(distances) for distances in All_distances_from_grain] + [np.argmin(All_distances_from_grain)]
+            All_distances_from_grain_1 = geometry.get_distances(Atoms_to_add.get_positions(), sphere.get_positions())[1]
+            if ((np.amin(All_distances_from_grain_1) > distance_grain*0.95) and (np.amin(All_distances_from_grain_1) < distance_grain*1.05)) or start_again > 10:
+                good_place = True
+                #print(i, start_again, np.amin(All_distances_from_grain_1), delta)
+                if 'atoms' in locals():
+                    atoms += deepcopy(Atoms_to_add)
+                else:
+                    atoms = deepcopy(Atoms_to_add)
+            else:
+                #print(i, start_again, np.amin(All_distances_from_grain_1), delta)
+                start_again += 1
+
     if continue_grid == 0: 
         #writ the file with all the final input positions
         io.write('./grid.xyz', sphere + atoms)
+        io.write('./grid_first.xyz', sphere + atoms_far)
     else:
         #if the computation continues from a previous one we update the file
         grid_old = io.read('./grid.xyz') 
         io.write('./grid.xyz', grid_old + atoms)
+        grid_first_old = io.read('./grid_first.xyz') 
+        io.write('./grid_first.xyz', grid_first_old + atoms_far)
 
 def distances_3d(atoms):
     """Takes an ase atoms object and return their distances from the origin"""
