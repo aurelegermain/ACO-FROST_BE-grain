@@ -312,7 +312,6 @@ def grid_building(sphere, level, continue_grid):
             atoms_far = deepcopy(Atoms_to_add)
 
         good_place = False
-        merde = False
         start_again = 0
         while good_place!=True:
             All_distances_from_grain = geometry.get_distances(Atoms_to_add.get_positions(), sphere.get_positions())[1]
@@ -348,8 +347,8 @@ def grid_building(sphere, level, continue_grid):
                     t_2_0 = (-delta_b + np.sqrt(np.abs(delta)))/(2*delta_a)
                     t_2_1 = (-delta_b - np.sqrt(np.abs(delta)))/(2*delta_a)
 
-                    mol_position_2_0 = np.array([t_2_0*mol_position[0], t_0*mol_position[1], t_0*mol_position[2]])
-                    mol_position_2_1 = np.array([t_2_1*mol_position[0], t_1*mol_position[1], t_1*mol_position[2]])
+                    mol_position_2_0 = np.array([t_2_0*mol_position[0], t_2_0*mol_position[1], t_2_0*mol_position[2]])
+                    mol_position_2_1 = np.array([t_2_1*mol_position[0], t_2_1*mol_position[1], t_2_1*mol_position[2]])
 
                     d_mol_2_0 = np.sqrt(np.sum((mol_position_2_0)**2))
                     d_mol_2_1 = np.sqrt(np.sum((mol_position_2_1)**2))
