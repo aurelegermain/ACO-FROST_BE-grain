@@ -1,0 +1,13 @@
+2
+C2+_4 (4-SGG / D*H)
+ C     0.000000     0.000000     0.699168
+ C     0.000000     0.000000    -0.699168
+
+-------- ENERGY AND PROPERTIES --------
+
+ Rotational constants:       0.0000000       43.0767443       43.0767443 GHz
+
+ EROCCSD(T)/aug-cc-pVTZ = -75.355367563 Eh
+
+ MU_X      MU_Y      MU_Z       MU
+ 0.000    -0.000    0.000    0.000

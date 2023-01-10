@@ -14,60 +14,73 @@ from copy import deepcopy
 import subprocess
 import numpy as np
 from scipy.spatial import ConvexHull
-from ase import io, Atoms, neighborlist
+from ase import io, Atoms, neighborlist, geometry
 from ase.units import kJ,Hartree,mol
 from ase.build import molecule
 import argparse
 import math
 import os
 from itertools import combinations
-import conflictsparse
 
 rng = np.random.default_rng()
 
 parser = argparse.ArgumentParser()
 parser.add_argument("grain", metavar="G", help="Grain model to sample in .xyz", type=str)
-parser.add_argument("-level", "--level", help="Grid level needed", type=int, default="0")
+parser.add_argument("-l", "--level", help="Grid level needed", type=int, default="0")
+parser.add_argument("-sl", "--section_level", help="Section Grid level needed", type=int, default="0")
 parser.add_argument("-mol", "--molecule", help="molecule to sample", type=str, default="0", required=True)
 parser.add_argument("-g", "--gfn", help="GFN-xTB method to use (0,1,2, or ff)", default="2")
 parser.add_argument("-r", "--radius", help="Radius for unfixing molecules", type=float, default="5")
 parser.add_argument("-om","--othermethod", action='store_true', help="Other method without the fixing of anything. Temporary name.")
 parser.add_argument("-restart", "--restart", help="If the calculation is a restart and from where it restart", type=int, default="0")
+parser.add_argument("-range", "--range", nargs='+', help="To contains the computation to only a range of BE", type=int)
+parser.add_argument("-rotation", "--rotation", help="If you want more than one random rotation for each adsorption", type=int, default=1)
 parser.add_argument("-gc", "--grid_continue", nargs='+', help="If you want to increase the size of the grid. First number is the first level of grid used, second number is the level desired", type=int, default=[0,0])
+parser.add_argument("-add_rotation", "--add_rotation", nargs='+', help="If you want to add a different rotation for your adsorption. First number how many rotation you have (default equal 1) and second number is how many rotation you want (2 if you want to add 1 rotation, 3 if you want to add 2, etc..)", type=int, default=[1,1])
+parser.add_argument("-d", "--distance", help="distance from grain when projected", type=float, default="2.5")
 
 #Conflicting options part
 
 #conflict between -onlyfreq and -nofreq
 group_freq = parser.add_mutually_exclusive_group()
-group_freq.add_argument('-nofreq', action='store_true', help="No frequencies computation")
-only_freq_arg = group_freq.add_argument('-onlyfreq', action='store_true', help="Only the frequencies computation. Needs the fixed or unfixed files")
+group_freq.add_argument('-nfreq', '--no_freq', action='store_true', help="No frequencies computation")
+only_freq_arg = group_freq.add_argument('-ofreq', '--only_freq', action='store_true', help="Only the frequencies computation. Needs the fixed or unfixed files")
 
 #conflict between -onlyfixed and -nofixed
 group_fixed = parser.add_mutually_exclusive_group()
-group_fixed.add_argument('-nofixed', action='store_true', help="The grain is totally unfixed")
-only_fixed_arg = group_fixed.add_argument('-onlyfixed', action='store_true', help="Only the opt of the fixed grain")
+group_fixed.add_argument('-nf', '--no_fixed', action='store_true', help="The grain is totally unfixed")
+only_fixed_arg = group_fixed.add_argument('-of', '--only_fixed', action='store_true', help="Only the opt of the fixed grain")
 
 #conflict between -onlyfixed -onlyunfixed and -onlyfreq
 group_only = parser.add_mutually_exclusive_group()
-group_only.add_argument('-onlyunfixed', action='store_true', help="Only the opt of the unfixed grain. Needs the fixed files")
+group_only.add_argument('-ouf', '--only_unfixed', action='store_true', help="Only the opt of the unfixed grain. Needs the fixed files")
 group_only._group_actions.append(only_freq_arg)
 group_only._group_actions.append(only_fixed_arg)
+
+parser.add_argument('-nu', '--no_unfixed', action='store_true', help="The unfixed part is not computed.")
+
 
 args = parser.parse_args()
 
 level = args.level
+section_level = args.section_level
 grain = args.grain
 molecule_to_sample = args.molecule.upper() #The molecule indicated by the user is automatically put in upper case 
+distance_grain = args.distance
 gfn = str(args.gfn)
 radius_unfixed = args.radius
-nofreq =args.nofreq
-nofixed = args.nofixed
-onlyfixed = args.onlyfixed
-onlyunfixed = args.onlyunfixed
-onlyfreq = args.onlyfreq
+nofreq =args.no_freq
+nofixed = args.no_fixed
+nounfixed = args.no_unfixed
+onlyfixed = args.only_fixed
+onlyunfixed = args.only_unfixed
+onlyfreq = args.only_freq
 othermethod = args.othermethod
 restart = args.restart
 list_args_grid_continue = args.grid_continue
+list_range = args.range
+nbr_rotation = args.rotation
+add_rotation = args.add_rotation
 
 #parameters needed for the starting positions. 
 #Should be put inside the function at some point (not used anywhere else I think)
@@ -75,6 +88,10 @@ distance = 2.5
 coeff_min = 1.00
 coeff_max = 1.2
 steps = 0.1
+
+if add_rotation != [1,1]:
+    list_args_grid_continue = [level,level]
+    nbr_rotation = add_rotation[1]
 
 #This is the file that contains the id of the BE that had opt problems in fixed, or are too far from the grain in unfixed
 list_discarded = "list_discarded.txt"
@@ -84,17 +101,20 @@ def grid_continue(starting_grid, ending_grid):
     If the user wants to increase the number of BEs by increasing the size of the grid. 
     Takes the level of the old grid and the level of the desired one and return the number of BE to ignore so that as to not compute the old grid again
     """
-    list_size_grid = np.atleast_1d(np.zeros(ending_grid + 1))
-
-    for i in range(len(list_size_grid)):
-        if i == 0:
-            list_size_grid[i] = 12
-        else:
-            list_size_grid[i] = list_size_grid[i - 1] + 2**(2*(i + 1) + 1) - 2**(2*(i - 1) + 1) #this is the equation that gives the number of grid points for the level n (depends on N(n-1))
-    if (ending_grid - starting_grid) ==0:
+    print(starting_grid, ending_grid)
+    if (ending_grid - starting_grid) == 0 and (add_rotation[1] - add_rotation[0]) == 0:
         continue_grid = 0
     else:
-        continue_grid = int(list_size_grid[starting_grid])
+        list_size_grid = np.atleast_1d(np.zeros(ending_grid + 1))
+        for i in range(len(list_size_grid)):
+            if i == 0:
+                list_size_grid[i] = 12
+            else:
+                list_size_grid[i] = list_size_grid[i - 1] + 2**(2*(i + 1) + 1) - 2**(2*(i - 1) + 1) #this is the equation that gives the number of grid points for the level n (depends on N(n-1))
+        continue_grid = int(list_size_grid[starting_grid]*add_rotation[0])
+    
+    print(continue_grid)
+
 
     return continue_grid
 
@@ -159,6 +179,85 @@ def grid_building(sphere, level, continue_grid):
 
         iter_level +=1
     
+     #if we bisect or trisect or ... the grid level we chosed 
+    if section_level > 0:
+        #the first part is the same as for building the grid levels
+        #build the indice of each triangles
+        hull = ConvexHull(grid)
+        indices = hull.simplices
+        #sort indices inside each row and then we sort each row dependng on the value of the first column
+        indices = np.sort(indices)
+        indices =indices[indices[:, 0].argsort()]
+    
+        #build the list of each point to be added to construct the next level grid
+        list_point_to_add= []
+        for l in range(len(indices)):
+            list_point_to_add = np.append(list_point_to_add,[i for i in combinations(indices[l,:], 2)])
+        list_point_to_add = np.reshape(list_point_to_add, (-1,2))
+        list_point_to_add = np.unique(list_point_to_add, axis=0).astype(int)
+
+        #we make a matrice for each point. 0 if two points are not neighbours and 1 if they are
+        matrice_connect = np.zeros([len(grid), len(grid)])
+        for connect in list_point_to_add:
+            matrice_connect[connect[0], connect[1]] = 1
+            matrice_connect[connect[1], connect[0]] = 1
+
+        #we go points by points 
+        for i, line in enumerate(matrice_connect):
+
+            #list of points connected to the one we selected 
+            list_points = [i for i in range(len(line)) if line[i]==1]
+
+            #this array will contain every section points between the selected point and the ones in the list
+            grid_direct = np.zeros([section_level*len(list_points),3])
+            for j, point in enumerate(list_points):
+                if point < i: continue
+
+                #we create the sections points for every point directly connected to the selected point 
+                for lvl in range(section_level):
+                    m = lvl + 1 #m equal 1 if bisection, 2 then 1 if trisection, 3 then 2 then 1 if quadrisection, etc...
+                    n = (section_level + 1) - m 
+                    
+                    grid_direct[j*section_level + lvl,:] = (n * grid[i,:] + m * grid[point,:])/(n + m)
+                    grid_direct[j*section_level + lvl,:] = grid_direct[j*section_level + lvl,:]/np.sqrt(np.sum(np.square(grid_direct[j*section_level + lvl,:]))) 
+            #we append these points to the grid
+            grid = np.append(grid, grid_direct[np.any(grid_direct != [0.,0.,0.], axis=1)], axis=0)
+            
+            #in this part we will create the 
+            for j, point in enumerate(list_points):
+                if point < i: continue
+
+                list_connect_point = [k for k in range(len(line)) if (line[k]==1 and matrice_connect[point][k] == 1)]
+
+                for k, connect_point in enumerate(list_connect_point):
+                    if connect_point < point: continue
+                    grid_connect = np.zeros([sum([i + 1 for i in range(section_level - 1)]),3])
+
+                    iter = 0
+                    for lvl in range(section_level-1):
+                        for nbr_lvl in range(lvl + 1):
+                            m = nbr_lvl + 1
+                            n = (lvl + 2) - m 
+
+                            grid_connect[iter,:] = (n * grid_direct[j*section_level + lvl + 1,:] + m * grid_direct[section_level*list_points.index(connect_point) + lvl + 1,:])/(n + m)
+                            grid_connect[iter,:] = grid_connect[iter,:]/np.sqrt(np.sum(np.square(grid_connect[iter,:]))) 
+                            iter +=1
+
+                    grid = np.append(grid, grid_connect, axis=0)
+
+    matrice_distances = geometry.get_distances(sphere.get_positions(), sphere.get_center_of_mass())
+    list_distances = [values for list in matrice_distances[1] for values in list if values != 0]
+
+    grid_list = Atoms(str(len(grid)) + 'N')
+    grid_list.set_positions(grid*(np.amax(list_distances) + 2.5))
+
+    del grid
+    
+    if nbr_rotation !=1:
+        grid_deepcopy = deepcopy(grid_list)
+        for i in range(nbr_rotation - 1):
+            grid_list = np.append(grid_list, grid_deepcopy, axis=0)
+
     #this is simply to project on a sphere with a radius taken from the grain model to sample
     distance_max = np.amax(distances_3d(sphere)) + 1
 
@@ -167,83 +266,129 @@ def grid_building(sphere, level, continue_grid):
         #make a directory with the name of the molecule + _xtb. To store the xtb files of the molecule to sample
         subprocess.call(['mkdir', molecule_to_sample + '_xtb'])
 
-        io.write('./' + molecule_to_sample + '_xtb/' + molecule_to_sample + '_inp.xyz', molecule(molecule_to_sample))
-        process = subprocess.Popen(['xtb', molecule_to_sample + '_inp.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + molecule_to_sample + '_xtb', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        io.write('./' + molecule_to_sample + '_xtb/' + molecule_to_sample + '_inp.xyz', molecule_csv(molecule_to_sample))
+        start_GFN(gfn,'extreme', molecule_to_sample + '_inp.xyz', "output",molecule_to_sample + '_xtb',0)
+        #process = subprocess.Popen(['xtb', molecule_to_sample + '_inp.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + molecule_to_sample + '_xtb', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        stdout, stderr = process.communicate()
-        output = open("./" + molecule_to_sample + "_xtb/output", "w")
-        print(stdout.decode(), file=output)
-        print(stderr.decode(), file=output)   
-        output.close()
+        #stdout, stderr = process.communicate()
+        #output = open("./" + molecule_to_sample + "_xtb/output", "w")
+        #print(stdout.decode(errors="replace"), file=output)
+        #print(stderr.decode(errors="replace"), file=output)   
+        #output.close()
 
+        
         subprocess.call(['mv', './' + molecule_to_sample + '_xtb/xtbopt.xyz', './' + molecule_to_sample + '_xtb/' + molecule_to_sample + '.xyz'])
+        
+        start_GFN_freq(gfn, molecule_to_sample + '.xyz', 'frequencies', molecule_to_sample + '_xtb', 0)
 
-        process = subprocess.Popen(['xtb', molecule_to_sample + '.xyz', '--hess', '--gfn' + gfn, '--verbose'], cwd='./' + molecule_to_sample + '_xtb', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        #process = subprocess.Popen(['xtb', molecule_to_sample + '.xyz', '--hess', '--gfn' + gfn, '--verbose'], cwd='./' + molecule_to_sample + '_xtb', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        stdout, stderr = process.communicate()
-        output = open("./" + molecule_to_sample + "_xtb/frequencies", "w")
-        print(stdout.decode(), file=output)
-        print(stderr.decode(), file=output)   
-        output.close()
+        #stdout, stderr = process.communicate()
+        #output = open("./" + molecule_to_sample + "_xtb/frequencies", "w")
+        #print(stdout.decode(errors="replace"), file=output)
+        #print(stderr.decode(errors="replace"), file=output)   
+        #output.close()
 
     #this is the molecule that will be added for each rid point.
     atoms_to_add = io.read('./' + molecule_to_sample + '_xtb/' + molecule_to_sample + '.xyz') 
 
-    #replace each grid point by the molecule studied and apply a random orientation to it
-    #The grid radius is also changed and set to the "distance_max" variable
-    for i in range(len(grid) - continue_grid):
-        atoms_to_add2 = deepcopy(atoms_to_add)
+    for i in range(len(grid_list) - continue_grid):
+        #if i!=0: continue
+        i_continue = int(i + continue_grid)
+        Atoms_to_add = deepcopy(atoms_to_add)
+
         #rotate the molecule randomly
         angle_mol = rng.random(3)*360
-        atoms_to_add2.rotate(angle_mol[0], "x")
-        atoms_to_add2.rotate(angle_mol[1], "y")
-        atoms_to_add2.rotate(angle_mol[2], "z")
+        Atoms_to_add.rotate(angle_mol[0], "x")
+        Atoms_to_add.rotate(angle_mol[1], "y")
+        Atoms_to_add.rotate(angle_mol[2], "z")
 
-        for j in range(len(atoms_to_add)):
-            atoms_to_add2[j].position = atoms_to_add2[j].position + grid[i + continue_grid]*distance_max
-        if i == 0:
-            #atoms is the ase atoms object containing all the posistions of the studied molecule 
-            atoms = atoms_to_add2
+
+        Atoms_to_add.set_positions(Atoms_to_add.get_positions() + grid_list[i_continue].position)
+
+        if 'atoms_far' in locals():
+            atoms_far += deepcopy(Atoms_to_add)
         else:
-            atoms = atoms + atoms_to_add2
-    if continue_grid == 0:
-        #write the file containing all the positions with the grain structure used
-        io.write('./grid_first.xyz', sphere + atoms)
-    else:
-        #if the computation continues from a previous one we update the file
-        grid_first_old = io.read('./grid_first.xyz') 
-        io.write('./grid_first.xyz', grid_first_old + atoms)
+            atoms_far = deepcopy(Atoms_to_add)
 
-    position_mol = np.zeros(3)
-    for i in range(len(grid) - continue_grid):
-        #Maybe a too complicated method
-        #Compute the minimum distance between the molecule 
-        iter_steps = 0
-        i_continue = int(i + continue_grid)
-        radius = np.sqrt(np.square(grid[i_continue,0]*distance_max) + np.square(grid[i_continue,1]*distance_max) + np.square(grid[i_continue,2]*distance_max))
-        theta = np.arccos(grid[i_continue,2]*distance_max/radius)
-        phi = np.arctan2(grid[i_continue,1]*distance_max,grid[i_continue,0]*distance_max)
-        molecule_to_move = barycentre(atoms[i*len(atoms_to_add):(i+1)*len(atoms_to_add)])
-        while np.amin(distances_ab(atoms[i*len(atoms_to_add):(i+1)*len(atoms_to_add)], sphere)) > distance * coeff_max or np.amin(distances_ab(atoms[i*len(atoms_to_add):(i+1)*len(atoms_to_add)], sphere)) < distance / coeff_min:
-            
-            if np.amin(distances_ab(atoms[i*len(atoms_to_add):(i+1)*len(atoms_to_add)], sphere)) > distance * coeff_max:
-                iter_steps += - 1
+        good_place = False
+        start_again = 0
+        while good_place!=True:
+            All_distances_from_grain = geometry.get_distances(Atoms_to_add.get_positions(), sphere.get_positions())[1]
+            id_mol, id_nearest = np.divmod(np.argmin(All_distances_from_grain),len(sphere))
+
+            mol_position = Atoms_to_add[id_mol].position
+            nearest_position = sphere[id_nearest].position
+
+            delta_a = np.sum(mol_position**2)
+            delta_b = -2*np.sum(mol_position*nearest_position)
+            delta_c = np.sum(nearest_position**2) - distance_grain**2
+            delta = delta_b**2 -4*delta_a*delta_c
+
+            if delta > 0:
+                t_0 = (-delta_b + np.sqrt(delta))/(2*delta_a)
+                t_1 = (-delta_b - np.sqrt(delta))/(2*delta_a)
+
+                mol_position_0 = np.array([t_0*mol_position[0], t_0*mol_position[1], t_0*mol_position[2]])
+                mol_position_1 = np.array([t_1*mol_position[0], t_1*mol_position[1], t_1*mol_position[2]])
+
+                d_mol_0 = np.sqrt(np.sum((mol_position_0)**2))
+                d_mol_1 = np.sqrt(np.sum((mol_position_1)**2))
+
+                if d_mol_0 > d_mol_1: 
+                    diff_mol_position = mol_position_0 - mol_position
+                else:
+                    diff_mol_position = mol_position_1 - mol_position
             else:
-                iter_steps += 1
-            #change the distance between the molecule and the grain by increments of 0.1A 
-            position_mol[0] = (radius + iter_steps*steps)*np.sin(theta)*np.cos(phi)
-            position_mol[1] = (radius + iter_steps*steps)*np.sin(theta)*np.sin(phi)
-            position_mol[2] = (radius + iter_steps*steps)*np.cos(theta)
+                delta_c_2 = [np.sum(nearest_position**2) - (i/10)**2 for i in range(20,40,1)]
+                delta_2 = [delta_b**2 -4*delta_a*delta_c_i for delta_c_i in delta_c_2]
 
-            for j in range(len(atoms_to_add)):
-                atoms[i*len(atoms_to_add)+j].position = molecule_to_move[j].position + position_mol
+                if start_again > 5:
+                    t_2_0 = (-delta_b + np.sqrt(np.abs(delta)))/(2*delta_a)
+                    t_2_1 = (-delta_b - np.sqrt(np.abs(delta)))/(2*delta_a)
+
+                    mol_position_2_0 = np.array([t_2_0*mol_position[0], t_2_0*mol_position[1], t_2_0*mol_position[2]])
+                    mol_position_2_1 = np.array([t_2_1*mol_position[0], t_2_1*mol_position[1], t_2_1*mol_position[2]])
+
+                    d_mol_2_0 = np.sqrt(np.sum((mol_position_2_0)**2))
+                    d_mol_2_1 = np.sqrt(np.sum((mol_position_2_1)**2))
+
+                    if d_mol_2_0 < d_mol_2_1: 
+                        diff_mol_position = mol_position_2_0 - mol_position
+                    else:
+                        diff_mol_position = mol_position_2_1 - mol_position
+                else:
+                    t_2 = (-delta_b)/(2*delta_a)
+                    mol_position_2 = np.array([t_2*mol_position[0], t_2*mol_position[1], t_2*mol_position[2]])
+                    diff_mol_position = mol_position_2 - mol_position
+
+            Atoms_to_add_0 = deepcopy(Atoms_to_add)
+
+            Atoms_to_add.set_positions(Atoms_to_add.get_positions() + diff_mol_position)
+
+            list_min_distances_from_grain = [np.argmin(distances) for distances in All_distances_from_grain] + [np.argmin(All_distances_from_grain)]
+            All_distances_from_grain_1 = geometry.get_distances(Atoms_to_add.get_positions(), sphere.get_positions())[1]
+            if ((np.amin(All_distances_from_grain_1) > distance_grain*0.95) and (np.amin(All_distances_from_grain_1) < distance_grain*1.05)) or start_again > 10:
+                good_place = True
+                #print(i, start_again, np.amin(All_distances_from_grain_1), delta)
+                if 'atoms' in locals():
+                    atoms += deepcopy(Atoms_to_add)
+                else:
+                    atoms = deepcopy(Atoms_to_add)
+            else:
+                #print(i, start_again, np.amin(All_distances_from_grain_1), delta)
+                start_again += 1
+
     if continue_grid == 0: 
         #writ the file with all the final input positions
         io.write('./grid.xyz', sphere + atoms)
+        io.write('./grid_first.xyz', sphere + atoms_far)
     else:
         #if the computation continues from a previous one we update the file
         grid_old = io.read('./grid.xyz') 
         io.write('./grid.xyz', grid_old + atoms)
+        grid_first_old = io.read('./grid_first.xyz') 
+        io.write('./grid_first.xyz', grid_first_old + atoms_far)
 
 def distances_3d(atoms):
     """Takes an ase atoms object and return their distances from the origin"""
@@ -300,7 +445,7 @@ def FromXYZtoDataframeMolecule(input_file):
     df_xyz['Z'].astype(float)
     #compute neighbor of the atoms in xyz format with ASE package
     mol = io.read(input_file)
-    cutOff = neighborlist.natural_cutoffs(mol)
+    cutOff = neighborlist.natural_cutoffs(mol, mult=0.9)
     neighborList = neighborlist.NeighborList(cutOff, self_interaction=False, bothways=True)
     neighborList.update(mol)
     #create molecules column in dataframe related to connectivity, molecules start from 0
@@ -367,7 +512,7 @@ def LabelMoleculesRadius(df_xyz,mol_ref,radius):
     return(df_xyz)
 
 #Start of the grain totally fixed part of BE computation
-def fixed(restart, continue_grid):
+def fixed(restart, continue_grid, list_range):
     """
     Read the grid.xyz file and produce separate input files for each position. 
     Then compute the GFN-xTB opt of the inputs and use an xtb.inp file to fix the grain.
@@ -376,6 +521,8 @@ def fixed(restart, continue_grid):
     for i in range(len_grid):
         if i < continue_grid:
             continue
+        if i < list_range[0] or i > list_range[1]:
+            continue 
         subprocess.call(['mkdir', str(i)])
         file_xtb_input = open("./" + str(i) + "/xtb.inp","w")
         print("$constrain", file=file_xtb_input)
@@ -388,13 +535,18 @@ def fixed(restart, continue_grid):
     for i in range(len_grid):
         if i < restart or i < continue_grid:
             continue
-        process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if i < list_range[0] or i > list_range[1]:
+            continue 
         
-        stdout, stderr = process.communicate()
-        output = open("./" + str(i) + "/BE_" + str(i) + ".out", "w")
-        print(stdout.decode(), file=output)
-        print(stderr.decode(), file=output)   
-        output.close()
+        start_GFN(gfn, 'extreme', 'BE_' + str(i) + '.xyz', "BE_" + str(i) + ".out", str(i), 'xtb.inp')
+        
+        #process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        
+        #stdout, stderr = process.communicate()
+        #output = open("./" + str(i) + "/BE_" + str(i) + ".out", "w")
+        #print(stdout.decode(errors="replace"), file=output)
+        #print(stderr.decode(errors="replace"), file=output)   
+        #output.close()
         subprocess.call(['mv', './' + str(i) + '/xtbopt.log', './' + str(i) + '/movie.xyz'])
 
         #if the computation has not converged the BE is added to a file indicating every BE that did not work and should not be used for further computations.
@@ -403,7 +555,7 @@ def fixed(restart, continue_grid):
             print(str(i) + "    N", file=file_list_discarded)
             file_list_discarded.close()
 
-def unfixed(restart, continue_grid):
+def unfixed(restart, continue_grid, list_range):
     """
     Compute the GFN-xTB opt of the xtbopt.xyz file obtained during the "fixed" function.
     Unfix molecules around a indicated radius around the molecule studied (5A by default).
@@ -431,6 +583,8 @@ def unfixed(restart, continue_grid):
             break
         if i < continue_grid or i not in list_not_discarded:
             continue
+        if i < list_range[0] or i > list_range[1]:
+            continue 
         if os.path.isdir('./' + str(i) + '/') is False:
             print('Folder with geometry needed not found')
             exit()
@@ -460,7 +614,7 @@ def unfixed(restart, continue_grid):
         file_xtb_unfixed_input = open("./" + str(i) + "/unfixed-radius/xtb.inp","w")
         print("$constrain", file=file_xtb_unfixed_input)
         print("    atoms: ", end="", file=file_xtb_unfixed_input)
-        print(list_fix)
+        #print(list_fix)
         list_fix = np.atleast_1d(list_fix)
         for k in range(len(list_fix)):
             if k!=0:
@@ -511,14 +665,19 @@ def unfixed(restart, continue_grid):
     for i in range(len_grid):
         if i < restart or i < continue_grid:
             continue
+        if i < list_range[0] or i > list_range[1]:
+            continue 
         if i in list_not_discarded:
-            process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            
+            start_GFN(gfn, 'extreme', 'BE_' + str(i) + '.xyz', "BE_" + str(i) + ".out", str(i) + '/unfixed-radius', 'xtb.inp')
+            
+            #process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
-            stdout, stderr = process.communicate()
-            output = open("./" + str(i) + "/unfixed-radius/BE_" + str(i) + ".out", "w")
-            print(stdout.decode(), file=output)
-            print(stderr.decode(), file=output)   
-            output.close()
+            #stdout, stderr = process.communicate()
+            #output = open("./" + str(i) + "/unfixed-radius/BE_" + str(i) + ".out", "w")
+            #print(stdout.decode(errors="replace"), file=output)
+            #print(stderr.decode(errors="replace"), file=output)   
+            #output.close()
             subprocess.call(['mv', './' + str(i) + '/unfixed-radius/xtbopt.log', './' + str(i) + '/unfixed-radius/movie.xyz'])
     
             restart_BE = 0
@@ -574,7 +733,7 @@ def unfixed(restart, continue_grid):
                     file_xtb_unfixed_input = open("./" + str(i) + "/unfixed-radius/xtb.inp","w")
                     print("$constrain", file=file_xtb_unfixed_input)
                     print("    atoms: ", end="", file=file_xtb_unfixed_input)
-                    print(list_fix)
+                    #print(list_fix)
                     for k in range(len(list_fix)):
                         if k!=0:
                             if k==len(list_fix)-1:
@@ -601,14 +760,15 @@ def unfixed(restart, continue_grid):
                     del list_fix
                     del list_not_fix
     
+                    start_GFN(gfn, 'extreme', 'BE_' + str(i) + '.xyz', "BE_" + str(i) + ".out", str(i) + '/unfixed-radius', 'xtb.inp')
+                
+                    #process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     
-                    process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    
-                    stdout, stderr = process.communicate()
-                    output = open("./" + str(i) + "/unfixed-radius/BE_" + str(i) + ".out", "w")
-                    print(stdout.decode(), file=output)
-                    print(stderr.decode(), file=output)   
-                    output.close()
+                    #stdout, stderr = process.communicate()
+                    #output = open("./" + str(i) + "/unfixed-radius/BE_" + str(i) + ".out", "w")
+                    #print(stdout.decode(errors="replace"), file=output)
+                    #print(stderr.decode(errors="replace"), file=output)   
+                    #output.close()
                     subprocess.call(['mv', './' + str(i) + '/unfixed-radius/xtbopt.log', './' + str(i) + '/unfixed-radius/movie.xyz'])  
     
                     restart_BE = restart_BE + 1
@@ -626,7 +786,7 @@ def unfixed(restart, continue_grid):
                 print(str(i) + "    N", file=file_list_discarded)
                 file_list_discarded.close()
 
-def frequencies(restart, othermethod, continue_grid):
+def frequencies(restart, othermethod, continue_grid, list_range):
     """
     Compute the GFN-xTB frequencies of each BE.
     If the frequencies are computed from an unfixed computation it add the xtb.inp file containing the fixed molecules of the grain.
@@ -651,17 +811,20 @@ def frequencies(restart, othermethod, continue_grid):
     #Compute the frequencies of the grain structure one time. 
     #I don't think the "for" is needed. I should probably take time to better think through this part.
     for i in range(len_grid):
+        if i < list_range[0] or i > list_range[1]:
+            continue 
         if i in list_not_discarded:
             if os.path.isdir('./' + str(i) + '/') is True and os.path.isfile('./' + str(i) + '/xtb.inp') is False and grain_freq is False:
                 othermethod = True
                 if continue_grid == 0 or restart == 0:
-                    process = subprocess.Popen(['xtb', grain, '--hess', '--gfn' + gfn, '--verbose'], cwd='./', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    stdout, stderr = process.communicate()
-                    output = open("./grain_frequencies.out", "w")
-                    print(stdout.decode(), file=output)
-                    print(stderr.decode(), file=output)   
-                    output.close()
-                if os.path.isfile("./xtbhess.xyz"):
+                    start_GFN_freq(gfn, 'xtbopt.xyz', 'grain_frequencies.out', 'grain', 0)
+                    #process = subprocess.Popen(['xtb', 'xtbopt.xyz', '--hess', '--gfn' + gfn, '--verbose'], cwd='./', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    #stdout, stderr = process.communicate()
+                    #output = open("./grain_frequencies.out", "w")
+                    #print(stdout.decode(errors="replace"), file=output)
+                    #print(stderr.decode(errors="replace"), file=output)   
+                    #output.close()
+                if os.path.isfile("./grain/xtbhess.xyz"):
                     print(r'Can\'t perform frequencies computation, the grain structure has imaginary frequencies.')
                     exit()
                 grain_freq = True
@@ -671,27 +834,31 @@ def frequencies(restart, othermethod, continue_grid):
         for i in range(len_grid):
             if i < restart or i < continue_grid:
                 continue
+            if i < list_range[0] or i > list_range[1]:
+                continue 
             if i in list_not_discarded:
                 if os.path.isdir('./' + str(i) + '/') is False:
                     print('Folder with geometry needed not found')
                     exit()
-                process = subprocess.Popen(['xtb', 'xtbopt.xyz', '--hess', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                stdout, stderr = process.communicate()
-                output = open("./" + str(i) + "/BE_" + str(i) + "_frequencies.out", "w")
-                print(stdout.decode(), file=output)
-                print(stderr.decode(), file=output)   
-                output.close()
+                start_GFN_freq(gfn, 'xtbopt.xyz', "BE_" + str(i) + "_frequencies.out", str(i), 0)
+                
+                #process = subprocess.Popen(['xtb', 'xtbopt.xyz', '--hess', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                #stdout, stderr = process.communicate()
+                #output = open("./" + str(i) + "/BE_" + str(i) + "_frequencies.out", "w")
+                #print(stdout.decode(errors="replace"), file=output)
+                #print(stderr.decode(errors="replace"), file=output)   
+                #output.close()
 
                 Results = open("./results_extreme_frequencies_othermethod.txt", "a")
                 if os.path.isfile("./" + str(i) + "/xtbhess.xyz"):
-                    print("N", file=Results)
+                    print(str(i) + " N", file=Results)
                     Results.close()
 
                     file_list_discarded = open(list_discarded, "a")
-                    print(str(i) + "    N", file=file_list_discarded)
+                    print(str(i) + " N", file=file_list_discarded)
                     file_list_discarded.close()
                 else:
-                    print("B", file=Results)
+                    print(str(i) + " B", file=Results)
                     Results.close()
     #start of the computation of frequencies for the unfixed-radius part.              
     else:
@@ -700,48 +867,55 @@ def frequencies(restart, othermethod, continue_grid):
         for i in range(len_grid):
             if i < restart or i < continue_grid:
                 continue
+            if i < list_range[0] or i > list_range[1]:
+                continue 
             if i in list_not_discarded:
-                if list_unfixed_discarded[i,1] == "Y":
+                if list_unfixed_discarded[np.where(list_unfixed_discarded[:,0].astype(int) == i)[0],1] == "Y":
                     if os.path.isdir('./' + str(i) + '/unfixed-radius') is False:
                         print('Folder with geometry needed not found')
                         exit()
-                    process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'xtbopt.xyz', '--hess', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    stdout, stderr = process.communicate()
-                    output = open("./" + str(i) + "/unfixed-radius/BE_" + str(i) + "_frequencies.out", "w")
-                    print(stdout.decode(), file=output)
-                    print(stderr.decode(), file=output)   
-                    output.close()
+                    start_GFN_freq(gfn, 'xtbopt.xyz', "BE_" + str(i) + "_frequencies.out", str(i) + '/unfixed-radius', 'xtb.inp')
+                    
+                    #process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'xtbopt.xyz', '--hess', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    #stdout, stderr = process.communicate()
+                    #output = open("./" + str(i) + "/unfixed-radius/BE_" + str(i) + "_frequencies.out", "w")
+                    #print(stdout.decode(errors="replace"), file=output)
+                    #print(stderr.decode(errors="replace"), file=output)   
+                    #output.close()
 
                     Results = open("./results_extreme_frequencies_lorenzo_unfixed_grain.txt", "a")
                     #If imaginary freqencies are present the BE is added to the discarded BE file and the frequencies of the grain are not computed.
                     if os.path.isfile("./" + str(i) + "/unfixed-radius/xtbhess.xyz"):
-                        print("N", file=Results)
+                        print(str(i) + " N", file=Results)
                         Results.close()
                                 
                         file_list_discarded = open(list_discarded, "a")
-                        print(str(i) + "    N", file=file_list_discarded)
+                        print(str(i) + " N", file=file_list_discarded)
                         file_list_discarded.close()
                     else:
                         #Computation of the grain frequencies
                         subprocess.call(['mkdir', './' + str(i) + '/unfixed-radius/grain_freq'])
                         subprocess.call(['cp', './' + grain, './' + str(i) + '/unfixed-radius/grain_freq/'])
                         subprocess.call(['cp', './' + str(i) + '/unfixed-radius/xtb.inp', './' + str(i) + '/unfixed-radius/grain_freq/'])
-                        process = subprocess.Popen(['xtb', '--input', 'xtb.inp', grain, '--hess', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius/grain_freq', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                        
+                        start_GFN_freq(gfn, 'xtbopt.xyz', 'grain_frequencies.out', str(i) + '/unfixed-radius/grain_freq', 'xtb.inp')
 
-                        stdout, stderr = process.communicate()
-                        output = open("./" + str(i) + "/unfixed-radius/grain_freq/grain_frequencies.out", "w")
-                        print(stdout.decode(), file=output)
-                        print(stderr.decode(), file=output)   
-                        output.close()
+                        #process = subprocess.Popen(['xtb', '--input', 'xtb.inp', 'xtbopt.xyz', '--hess', '--gfn' + gfn, '--verbose'], cwd='./' + str(i) + '/unfixed-radius/grain_freq', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+                        #stdout, stderr = process.communicate()
+                        #output = open("./" + str(i) + "/unfixed-radius/grain_freq/grain_frequencies.out", "w")
+                        #print(stdout.decode(errors="replace"), file=output)
+                        #print(stderr.decode(errors="replace"), file=output)   
+                        #output.close()
                         if os.path.isfile("./" + str(i) + "/unfixed-radius/grain_freq/xtbhess.xyz"):
-                            print("N", file=Results)
+                            print(str(i) + " N", file=Results)
                             Results.close()
 
                             file_list_discarded = open(list_discarded, "a")
-                            print(str(i) + "    N", file=file_list_discarded)
+                            print(str(i) + " N", file=file_list_discarded)
                             file_list_discarded.close()
                         else:
-                            print("B", file=Results)
+                            print(str(i) + " B", file=Results)
                             Results.close()
 
                 else:
@@ -753,13 +927,15 @@ def frequencies(restart, othermethod, continue_grid):
                 print(str(i) + " N", file=Results)
                 Results.close()
 
-def othermethod_func(restart, continue_grid):
+def othermethod_func(restart, continue_grid, list_range):
     #Create every input for the fixed part
     for i in range(len_grid):
         if restart > 0:
             break
         if i < continue_grid:
             continue
+        if i < list_range[0] or i > list_range[1]:
+            continue 
         subprocess.call(['mkdir', str(i)])
         io.write('./' + str(i) + '/BE_' + str(i) + '.xyz', sphere + sphere_grid[len_sphere + i*len_molecule:len_sphere + (i+1)*len_molecule])
     
@@ -767,21 +943,70 @@ def othermethod_func(restart, continue_grid):
     for i in range(len_grid):
         if i < restart or i < continue_grid:
             continue
-        process = subprocess.Popen(['xtb', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if i < list_range[0] or i > list_range[1]:
+            continue 
         
-        stdout, stderr = process.communicate()
-        output = open("./" + str(i) + "/BE_" + str(i) + ".out", "w")
-        print(stdout.decode(), file=output)
-        print(stderr.decode(), file=output)   
-        output.close()
+        start_GFN(gfn, 'extreme', 'BE_' + str(i) + '.xyz', 'BE_' + str(i) + '.out', str(i), 0)
+        #process = subprocess.Popen(['xtb', 'BE_' + str(i) + '.xyz', '--opt', 'extreme', '--gfn' + gfn, '--verbose'], cwd='./' + str(i), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        
+        #stdout, stderr = process.communicate()
+        #output = open("./" + str(i) + "/BE_" + str(i) + ".out", "w")
+        #print(stdout.decode(errors="replace"), file=output)
+        #print(stderr.decode(errors="replace"), file=output)   
+        #output.close()
         subprocess.call(['mv', './' + str(i) + '/xtbopt.log', './' + str(i) + '/movie.xyz'])
 
-sphere = io.read('./' + grain) 
+def start_GFN(gfn, extreme, input_structure, output, folder, input_inp):
+    #GFN_start_time = datetime.now()
+    if input_inp != 0:
+        process = subprocess.Popen(['xtb', '--input', input_inp, input_structure,  '--opt', extreme , '--gfn' + gfn, '--verbose'], cwd='./' + folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    else:
+        process = subprocess.Popen(['xtb', input_structure, '--opt', extreme , '--gfn' + gfn, '--verbose'], cwd='./' + folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output = open(folder + "/" + output, "w")
+    for line in process.stdout:
+        print(line.decode(errors="replace"), end='', file=output)
+    stdout, stderr = process.communicate()
+    print(stderr.decode(errors="replace"), file=output)
+    output.close()
+    #print('GFN' + str(gfn), str(datetime.now() - GFN_start_time), folder, file=Time_file)
+
+def start_GFN_freq(gfn, input_structure, output, folder, input_inp):
+    if input_inp != 0:
+        process = subprocess.Popen(['xtb', '--input', input_inp, input_structure, '--hess', '--gfn' + gfn, '--verbose'], cwd='./'  + folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    else:
+        process = subprocess.Popen(['xtb', input_structure, '--hess', '--gfn' + gfn, '--verbose'], cwd='./'  + folder, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output = open("./" + folder + "/" + output, "w")
+    for line in process.stdout:
+        print(line.decode(errors="replace"), end='', file=output)
+    stdout, stderr = process.communicate()
+    print(stderr.decode(errors="replace"), file=output)   
+    output.close()
+
+def molecule_csv(mol):
+    df = pd.read_csv('molecules_reactivity_network.csv', sep='\t')
+    atoms = io.read(df.loc[df['species'] == mol, 'pwd_xyz'].values[0]) 
+    return atoms
+
+if os.path.isfile('./grain/xtbopt.xyz') == True:
+    sphere = io.read('./grain/xtbopt.xyz')
+    grain = 'grain/xtbopt.xyz'
+else:
+    subprocess.call(['mkdir', 'grain'])
+    subprocess.call(['cp', grain, './grain/'])
+    start_GFN(gfn, 'extreme',grain, 'output','grain/', 0)
+    sphere = io.read('./grain/xtbopt.xyz')
+    grain = 'grain/xtbopt.xyz'
+
+
+#sphere = io.read('./' + grain) 
 
 continue_grid = grid_continue(list_args_grid_continue[0], list_args_grid_continue[1])
 
 if nofixed is False and onlyunfixed is False and onlyfreq is False:
-    grid_building(sphere,level, continue_grid)
+    if os.path.isfile('grid.xyz') is False and continue_grid == 0:
+        grid_building(sphere,level, continue_grid)
+    elif os.path.isfile('grid.xyz') is True and continue_grid != 0:
+        grid_building(sphere,level, continue_grid)
 if os.path.isfile('grid.xyz') is False:
     print('No grid.xyz file')
     exit()
@@ -790,23 +1015,26 @@ sphere_grid = io.read('./grid.xyz')
 len_sphere = len(sphere)
 
 len_sphere_grid = len(sphere_grid)
-len_molecule = len(molecule(molecule_to_sample))
+len_molecule = len(molecule_csv(molecule_to_sample))
 len_grid = int((len_sphere_grid - len_sphere)/len_molecule)
 
+if list_range is None:
+    list_range = [0, len_grid]
+
 if othermethod is True and onlyfreq is False:
-    othermethod_func(restart, continue_grid)
+    othermethod_func(restart, continue_grid, list_range)
     restart = 0
 
 if nofixed is False and onlyunfixed is False and onlyfreq is False and othermethod is False:
-    fixed(restart, continue_grid)
+    fixed(restart, continue_grid, list_range)
     restart = 0
-if onlyfixed is False and onlyfreq is False and othermethod is False:
-    unfixed(restart, continue_grid)
+if onlyfixed is False and onlyfreq is False and othermethod is False and nounfixed is False:
+    unfixed(restart, continue_grid, list_range)
     restart = 0
 
 if nofreq is False and onlyfixed is False and onlyunfixed is False:
 #Block for frequencies computation
-    frequencies(restart,othermethod, continue_grid)
+    frequencies(restart,othermethod, continue_grid, list_range)
     restart = 0
 
 
@@ -849,7 +1077,7 @@ def output():
             if os.path.isdir('./' + str(i) + '/unfixed-radius') is True:
                 if os.path.isdir('./' + str(i) + '/unfixed-radius/grain_freq') is True:
                     energy_fixed = energy_opt('./' + str(i) + '/xtbopt.xyz')
-                    energy_unfixed = energy_opt('./' + str(i) + '/xtbopt.xyz')
+                    energy_unfixed = energy_opt('./' + str(i) + '/unfixed-radius/xtbopt.xyz')
                     ZPE = ZPE_freq('./' + str(i) + '/unfixed-radius/BE_' + str(i) + '_frequencies.out')
                     ZPE_grain = ZPE_freq('./' + str(i) + '/unfixed-radius/grain_freq/grain_frequencies.out')
                     BE_fixed = HartreetoKjmol(energy_grain + energy_mol - energy_fixed)
@@ -868,7 +1096,7 @@ def output():
                 energy = energy_opt('./' + str(i) + '/xtbopt.xyz')
                 ZPE = ZPE_freq('./' + str(i) + '/BE_' + str(i) + '_frequencies.out')
                 BE = HartreetoKjmol(energy_grain + energy_mol - energy)
-                ZPE_grain = ZPE_freq('./grain_frequencies.out')
+                ZPE_grain = ZPE_freq('./grain/grain_frequencies.out')
                 Delta_ZPE = HartreetoKjmol(ZPE - ZPE_grain - ZPE_mol)
                 BE_ZPE = BE - Delta_ZPE
                 print(str("{:{width}d}".format(i, width=3)) + str("{: {width}.{prec}f}".format(BE, width=25, prec=14)) + str("{: {width}.{prec}f}".format(BE_ZPE, width=25, prec=14)) + str("{: {width}.{prec}f}".format(Delta_ZPE, width=25, prec=14)), file=file_results)
@@ -876,9 +1104,9 @@ def output():
                 energy_fixed = energy_opt('./' + str(i) + '/xtbopt.xyz')
                 BE_fixed = HartreetoKjmol(energy_grain + energy_mol - energy_fixed)
                 print(str("{:{width}d}".format(i, width=3)) + str("{: {width}.{prec}f}".format(BE_fixed, width=25, prec=14)), file=file_results)
-        else:
-            print('No results to print in the output file.')
-            exit()
+        #else:
+            #print('No results to print in the output file.')
+            #exit()
     file_results.close()
 
 output()

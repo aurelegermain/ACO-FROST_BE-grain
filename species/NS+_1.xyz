@@ -1,0 +1,13 @@
+2
+NS+_1 (1-SG / C*V)
+ N     0.000000     0.000000    -0.987877
+ S     0.000000     0.000000     0.432196
+
+-------- ENERGY AND PROPERTIES --------
+
+ Rotational constants:       0.0000000       25.7350378       25.7350378 GHz
+
+ ECCSD(T)/aug-cc-pVTZ = -452.01457523 Eh
+
+ MU_X      MU_Y      MU_Z       MU
+ 0.000    0.000    2.209    2.209

@@ -1,0 +1,13 @@
+2
+N2_1Sigma (1-SGG / D*H)
+ N     0.000000     0.000000     0.543378
+ N     0.000000     0.000000    -0.543378
+
+-------- ENERGY AND PROPERTIES --------
+
+ Rotational constants:       0.0000000       61.1166749       61.1166749 GHz
+
+ ECCSD(T)/aug-cc-pVTZ = -109.38004505 Eh
+
+ MU_X      MU_Y      MU_Z       MU
+ -0.000    0.000    -0.000    0.000

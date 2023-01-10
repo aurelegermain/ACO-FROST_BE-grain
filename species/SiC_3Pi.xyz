@@ -1,0 +1,13 @@
+2
+SiC_3Pi (i-X / C*V)
+Si     0.000000     0.000000     0.512819
+ C     0.000000     0.000000    -1.196578
+
+-------- ENERGY AND PROPERTIES --------
+
+ Rotational constants:       0.0000000       20.5948897       20.5948897 GHz
+
+ EROCCSD(T)/aug-cc-pVTZ = -326.86836471 Eh
+
+ MU_X      MU_Y      MU_Z       MU
+ 0.000    0.000    1.471    1.471

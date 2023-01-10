@@ -1,0 +1,14 @@
+3
+C3(^1Sigma_g^+) - tricarbon - carbon trimer
+ C     0.000000     0.000000    -1.301767
+ C     0.000000     0.000000     0.000000
+ C     0.000000     0.000000     1.301767
+
+-------- ENERGY AND PROPERTIES --------
+
+ Rotational constants:      12.4148336     12.4148336      0.0000000 GHz
+
+ECCSD(T)/aug-cc-pVTZ = -113.838661 Eh
+
+  ALPHA_XX  ALPHA_YY  ALPHA_ZZ     ALPHA      MU_X      MU_Y      MU_Z       MU
+     3.796     3.795     7.946     5.179     0.000     0.000     0.000     0.000

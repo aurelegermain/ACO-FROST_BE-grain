@@ -1,0 +1,13 @@
+2
+S2+_2 (2-PiG / D*H)
+ S     0.000000     0.000000     0.905401
+ S     0.000000     0.000000    -0.905401
+
+-------- ENERGY AND PROPERTIES --------
+
+ Rotational constants:       0.0000000       9.6412753       9.6412753 GHz
+
+ EROCCSD(T)/aug-cc-pVTZ = -795.11852094 Eh
+
+ MU_X      MU_Y      MU_Z       MU
+ 0.000    0.000    0.000    0.000

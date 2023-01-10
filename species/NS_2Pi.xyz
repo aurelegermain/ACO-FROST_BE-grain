@@ -1,0 +1,13 @@
+2
+NS_2Pi (i-X / C*V)
+ N     0.000000     0.000000    -1.035341
+ S     0.000000     0.000000     0.452962
+
+-------- ENERGY AND PROPERTIES --------
+
+ Rotational constants:       0.0000000       23.4295225       23.4295225 GHz
+
+ EROCCSD(T)/aug-cc-pVTZ = -452.33769671 Eh
+
+ MU_X      MU_Y      MU_Z       MU
+ 0.000    0.000    1.591    1.591

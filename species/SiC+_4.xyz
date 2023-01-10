@@ -1,0 +1,13 @@
+2
+SiC+_4 (4-SG / C*V)
+Si     0.000000     0.000000     0.544376
+ C     0.000000     0.000000    -1.270211
+
+-------- ENERGY AND PROPERTIES --------
+
+ Rotational constants:       0.0000000       18.2763621       18.2763621 GHz
+
+ EROCCSD(T)/aug-cc-pVTZ = -326.54402764 Eh
+
+ MU_X      MU_Y      MU_Z       MU
+ 0.000    0.000    1.026    1.026

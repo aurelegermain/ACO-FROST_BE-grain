@@ -1,0 +1,13 @@
+2
+HF+_2 (2-X / C*V)
+ H     0.000000     0.000000    -0.908575
+ F     0.000000     0.000000     0.100953
+
+-------- ENERGY AND PROPERTIES --------
+
+ Rotational constants:       0.0000000       518.1356053       518.1356053 GHz
+
+ EROCCSD(T)/aug-cc-pVTZ = -99.761653611 Eh
+
+ MU_X      MU_Y      MU_Z       MU
+ 0.000    0.000    -2.478    2.478

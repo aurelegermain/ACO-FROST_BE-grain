@@ -1,0 +1,13 @@
+2
+NaH_1Sigma (1-SG / C*V)
+Na     0.000000     0.000000     0.156468
+ H     0.000000     0.000000    -1.721146
+
+-------- ENERGY AND PROPERTIES --------
+
+ Rotational constants:       0.0000000       148.4747221       148.4747221 GHz
+
+ ECCSD(T)/aug-cc-pVTZ = -162.42830166 Eh
+
+ MU_X      MU_Y      MU_Z       MU
+ 0.000    0.000    7.023    7.023

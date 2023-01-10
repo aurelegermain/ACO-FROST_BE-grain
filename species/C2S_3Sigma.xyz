@@ -1,0 +1,14 @@
+3
+C2S_3Sigma (3-SG / C*V)
+ C     0.000000     0.000000    -1.922569
+ C     0.000000     0.000000    -0.611164
+ S     0.000000     0.000000     0.950150
+
+-------- ENERGY AND PROPERTIES --------
+
+ Rotational constants:       0.0000000       6.5041213       6.5041213 GHz
+
+ EROCCSD(T)/aug-cc-pVTZ = -473.63210463 Eh
+
+ MU_X      MU_Y      MU_Z       MU
+ 0.000    0.000    2.108    2.108

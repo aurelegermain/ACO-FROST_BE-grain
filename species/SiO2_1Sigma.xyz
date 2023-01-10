@@ -1,0 +1,14 @@
+3
+SiO2_1Sigma (1-SGG / D*H)
+Si     0.000000     0.000000     0.000000
+ O     0.000000     0.000000     1.505385
+ O     0.000000     0.000000    -1.505385
+
+-------- ENERGY AND PROPERTIES --------
+
+ Rotational constants:       0.0000000       6.9712412       6.9712412 GHz
+
+ ECCSD(T)/aug-cc-pVTZ = -439.33947512 Eh
+
+ MU_X      MU_Y      MU_Z       MU
+ -0.000    -0.000    0.000    0.000
